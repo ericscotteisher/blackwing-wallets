@@ -311,16 +311,25 @@ function WalletFeed({
         </div>
       </div>
 
-      <div className="mt-10 space-y-10">
+      <div className="mt-10">
         {sections.length === 0 ? (
           <div className="flex h-48 items-center justify-center rounded-2xl border border-dashed border-white/10 text-[#A1A1A1]">
             No wallets in this view yet.
           </div>
         ) : (
-          sections.map((section) => {
+          sections.map((section, index) => {
             const isExpanded = sectionExpansion[section.id] ?? true;
+            const isLast = index === sections.length - 1;
+            const spacingClass = isLast
+              ? ""
+              : isExpanded
+                ? "mb-10"
+                : "mb-6";
             return (
-              <section key={section.id} className="space-y-7">
+              <section
+                key={section.id}
+                className={`space-y-7 ${spacingClass}`.trim()}
+              >
                 <div className="flex items-center justify-between">
                   <button
                     type="button"
@@ -333,11 +342,7 @@ function WalletFeed({
                     </span>
                     <SectionCaret open={isExpanded} />
                   </button>
-                  <div
-                    className={`${baseTextClass} flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-[16px] text-[#A1A1A1]`}
-                  >
-                    +
-                  </div>
+                  <SectionActions sectionId={section.id} />
                 </div>
 
                 <AnimatedList
@@ -637,6 +642,65 @@ function AnimatedList<T>({
         );
       })}
     </div>
+  );
+}
+
+function SectionActions({ sectionId }: { sectionId: string }) {
+  if (sectionId === "auto-trade") {
+    return (
+      <div className="flex items-center gap-3 text-[15px] text-[#848484]">
+        <EllipsisIcon />
+        <InfoIcon filled />
+      </div>
+    );
+  }
+
+  if (sectionId === "watching") {
+    return (
+      <div className="flex items-center gap-3 text-[15px] text-[#848484]">
+        <EllipsisIcon />
+        <PlusIcon />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-3 text-[15px] text-[#848484]">
+      <EllipsisIcon />
+    </div>
+  );
+}
+
+function EllipsisIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-[16px] w-[20px]" fill="currentColor">
+      <circle cx="3" cy="12" r="3" />
+      <circle cx="13" cy="12" r="3" />
+      <circle cx="23" cy="12" r="3" />
+    </svg>
+  );
+}
+
+function InfoIcon({ filled }: { filled?: boolean }) {
+  return (
+    <div className="flex h-5 w-5 items-center justify-center rounded-full text-[12px] font-bold text-white bg-white/4">i</div>
+  );
+}
+
+function PlusIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="h-[20px] w-[20px]"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 5v14" />
+      <path d="M5 12h14" />
+    </svg>
   );
 }
 
