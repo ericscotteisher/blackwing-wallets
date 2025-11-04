@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import {
   tokenRecords,
   walletRecords,
@@ -22,6 +23,15 @@ type Section = {
   name: string;
   wallets: WalletView[];
 };
+
+type TradeSummaryInfo = {
+  tradesLabel: string;
+  winRateLabel: string;
+};
+
+type TradeListEntry =
+  | { kind: "summary"; id: string; summary: TradeSummaryInfo }
+  | { kind: "trade"; id: string; trade: TokenRecord };
 
 const discoverStatuses: WalletStatus[] = ["KOL", "Whale", "Alpha"];
 
@@ -58,7 +68,7 @@ const moneyFormatter = new Intl.NumberFormat("en-US", {
 type BottomTab = {
   id: "Wallets" | "Home" | "Sugar";
   label: string;
-  icon: (props: { active: boolean }) => JSX.Element;
+  icon: (props: { active: boolean }) => ReactNode;
 };
 
 const bottomTabs: BottomTab[] = [
@@ -328,19 +338,20 @@ function WalletFeed({
                   </div>
                 </div>
 
-                {isExpanded && (
-                  <div className="space-y-7">
-                    {section.wallets.map((wallet) => (
-                      <WalletRow
-                        key={wallet.id}
-                        wallet={wallet}
-                        expanded={Boolean(expandedWallets[wallet.id])}
-                        onToggle={() => onToggleWallet(wallet.id)}
-                        onSelect={() => onWalletSelect(wallet)}
-                      />
-                    ))}
-                  </div>
-                )}
+                <AnimatedList
+                  items={section.wallets}
+                  expanded={isExpanded}
+                  className="space-y-7"
+                  renderItem={(wallet) => (
+                    <WalletRow
+                      wallet={wallet}
+                      expanded={Boolean(expandedWallets[wallet.id])}
+                      onToggle={() => onToggleWallet(wallet.id)}
+                      onSelect={() => onWalletSelect(wallet)}
+                    />
+                  )}
+                  getKey={(wallet) => wallet.id}
+                />
               </section>
             );
           })
@@ -365,6 +376,25 @@ function WalletRow({
   const summary = getTradeSummary(wallet.trades);
   const walletMoney = getMoneyParts(wallet.moneyPNL);
   const walletPercent = getPercentDisplay(wallet.percentPNL);
+  const tradeEntries = useMemo(() => {
+    const entries: TradeListEntry[] = [];
+    if (summary) {
+      entries.push({
+        kind: "summary",
+        id: `${wallet.id}-summary`,
+        summary,
+      });
+    }
+    wallet.trades.forEach((trade, index) => {
+      entries.push({
+        kind: "trade",
+        id: `${wallet.id}-${trade.id}-${index}`,
+        trade,
+      });
+    });
+    return entries;
+  }, [summary, wallet.id, wallet.trades]);
+  const hasTradeEntries = tradeEntries.length > 0;
 
   return (
     <div>
@@ -404,26 +434,31 @@ function WalletRow({
         </button>
       </div>
 
-      {expanded && wallet.trades.length > 0 && (
-        <div className="mt-6 pl-8">
-          {summary && (
-            <div
-              className={`flex items-center justify-between ${baseTextClass} text-[#464B55]`}
-            >
-              <span>{summary.tradesLabel}</span>
-              <span>{summary.winRateLabel}</span>
-            </div>
-          )}
-
-          <div className="mt-6 space-y-7">
-            {wallet.trades.map((trade, index) => {
+      {hasTradeEntries && (
+        <div className="pl-8">
+          <AnimatedList
+            items={tradeEntries}
+            expanded={expanded}
+            className="mt-6 space-y-7"
+            enterTotal={120}
+            exitTotal={120}
+            getKey={(entry) => entry.id}
+            renderItem={(entry) => {
+              if (entry.kind === "summary") {
+                return (
+                  <div
+                    className={`flex items-center justify-between ${baseTextClass} text-[#464B55]`}
+                  >
+                    <span>{entry.summary.tradesLabel}</span>
+                    <span>{entry.summary.winRateLabel}</span>
+                  </div>
+                );
+              }
+              const trade = entry.trade;
               const tradeMoney = getMoneyParts(trade.pricePNL);
               const tradePercent = getPercentDisplay(trade.percentPNL);
               return (
-                <div
-                  key={`${wallet.id}-${trade.id}-${index}`}
-                  className="flex items-center justify-between"
-                >
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     {trade.image ? (
                       <div className="h-5 w-5 overflow-hidden rounded-[5px]">
@@ -457,8 +492,8 @@ function WalletRow({
                   </div>
                 </div>
               );
-            })}
-          </div>
+            }}
+          />
         </div>
       )}
     </div>
@@ -497,6 +532,109 @@ function BottomTabs({
         })}
       </div>
     </nav>
+  );
+}
+
+type AnimatedListProps<T> = {
+  items: T[];
+  expanded: boolean;
+  renderItem: (item: T, index: number) => ReactNode;
+  getKey: (item: T, index: number) => string;
+  className?: string;
+  enterTotal?: number;
+  exitTotal?: number;
+};
+
+function AnimatedList<T>({
+  items,
+  expanded,
+  renderItem,
+  getKey,
+  className,
+  enterTotal = 120,
+  exitTotal = 120,
+}: AnimatedListProps<T>) {
+  const count = items.length;
+  const enterStep = count > 0 ? enterTotal / count : enterTotal;
+  const exitStep = count > 0 ? exitTotal / count : exitTotal;
+  const [shouldRender, setShouldRender] = useState(expanded && count > 0);
+  const [phase, setPhase] = useState<"enter" | "exit">(
+    expanded && count > 0 ? "enter" : "exit",
+  );
+
+  useEffect(() => {
+    let timeout: number | null = null;
+    const frames: number[] = [];
+
+    if (count === 0) {
+      frames.push(
+        window.requestAnimationFrame(() => {
+          setShouldRender(false);
+          setPhase("exit");
+        }),
+      );
+    } else if (expanded) {
+      frames.push(
+        window.requestAnimationFrame(() => {
+          setShouldRender(true);
+          setPhase("exit");
+          frames.push(
+            window.requestAnimationFrame(() => {
+              setPhase("enter");
+            }),
+          );
+        }),
+      );
+    } else {
+      frames.push(
+        window.requestAnimationFrame(() => {
+          setPhase("exit");
+        }),
+      );
+      const totalTime = exitStep * Math.max(count, 1) + 2;
+      timeout = window.setTimeout(() => setShouldRender(false), totalTime);
+    }
+
+    return () => {
+      if (timeout !== null) {
+        window.clearTimeout(timeout);
+      }
+      frames.forEach((id) => window.cancelAnimationFrame(id));
+    };
+  }, [expanded, count, exitStep]);
+
+  if (!shouldRender) {
+    return null;
+  }
+
+  const containerClass = className ? `flex flex-col ${className}` : "flex flex-col";
+
+  return (
+    <div className={containerClass}>
+      {items.map((item, index) => {
+        const key = getKey(item, index);
+        const isEntering = phase === "enter";
+        const duration = phase === "exit" ? exitStep : enterStep;
+        const delay =
+          phase === "exit"
+            ? (count - 1 - index) * exitStep
+            : index * enterStep;
+        return (
+          <div
+            key={key}
+            style={{
+              transitionProperty: "opacity, transform",
+              transitionDuration: `${duration}ms`,
+              transitionDelay: `${delay}ms`,
+              opacity: isEntering ? 1 : 0,
+              transform: isEntering ? "translateY(0px)" : "translateY(-6px)",
+            }}
+          >
+            {renderItem(item, index)}
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
@@ -643,7 +781,7 @@ function getTradesForWallet(wallet: WalletRecord, index: number): TokenRecord[] 
   return trades;
 }
 
-function getTradeSummary(trades: TokenRecord[]) {
+function getTradeSummary(trades: TokenRecord[]): TradeSummaryInfo | null {
   if (trades.length === 0) return null;
 
   const wins = trades.filter((trade) => trade.pricePNL >= 0).length;
