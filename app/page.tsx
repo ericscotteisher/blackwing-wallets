@@ -1,65 +1,653 @@
+"use client";
+
 import Image from "next/image";
+import { useMemo, useState } from "react";
+import {
+  tokenRecords,
+  walletRecords,
+  TokenRecord,
+  WalletRecord,
+  WalletStatus,
+} from "./data";
+
+const walletFilterTabs = ["All", "Watching", "KOLs", "Whales"] as const;
+type WalletFilter = (typeof walletFilterTabs)[number];
+
+type WalletView = WalletRecord & {
+  trades: TokenRecord[];
+};
+
+type Section = {
+  id: string;
+  name: string;
+  wallets: WalletView[];
+};
+
+const discoverStatuses: WalletStatus[] = ["KOL", "Whale", "Alpha"];
+
+const badgePalette = [
+  "bg-amber-500/20 text-amber-200",
+  "bg-violet-500/20 text-violet-200",
+  "bg-emerald-500/20 text-emerald-200",
+  "bg-sky-500/20 text-sky-200",
+  "bg-rose-500/20 text-rose-200",
+  "bg-lime-500/20 text-lime-200",
+];
+
+const tokenColorPalette = [
+  "bg-lime-500 text-black",
+  "bg-amber-500 text-black",
+  "bg-emerald-400 text-black",
+  "bg-rose-400 text-black",
+  "bg-cyan-400 text-black",
+  "bg-violet-400 text-black",
+  "bg-orange-500 text-black",
+  "bg-teal-400 text-black",
+  "bg-yellow-400 text-black",
+  "bg-fuchsia-400 text-black",
+];
+
+const baseTextClass = "text-[15px] font-medium tracking-[0.02em]";
+
+const moneyFormatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 0,
+});
+
+type BottomTab = {
+  id: "Wallets" | "Home" | "Sugar";
+  label: string;
+  icon: (props: { active: boolean }) => JSX.Element;
+};
+
+const bottomTabs: BottomTab[] = [
+  { id: "Wallets", label: "Wallets", icon: WalletTabIcon },
+  { id: "Home", label: "Home", icon: HomeTabIcon },
+  { id: "Sugar", label: "Sugar", icon: SugarTabIcon },
+];
+
+type BottomTabId = BottomTab["id"];
 
 export default function Home() {
+  const walletViews = useMemo(
+    () =>
+      walletRecords.map<WalletView>((wallet, index) => ({
+        ...wallet,
+        trades: getTradesForWallet(wallet, index),
+      })),
+    [],
+  );
+
+  const [activeBottomTab, setActiveBottomTab] =
+    useState<BottomTabId>("Wallets");
+  const [walletFilter, setWalletFilter] = useState<WalletFilter>("All");
+  const [expandedWallets, setExpandedWallets] = useState<
+    Record<string, boolean>
+  >({});
+  const [selectedWallet, setSelectedWallet] = useState<WalletView | null>(null);
+
+  const handleToggleWallet = (walletId: string) => {
+    setExpandedWallets((prev) => ({
+      ...prev,
+      [walletId]: !prev[walletId],
+    }));
+  };
+
+  const handleWalletSelect = (wallet: WalletView) => {
+    setSelectedWallet(wallet);
+  };
+
+  const handleWalletFilterChange = (nextFilter: WalletFilter) => {
+    setWalletFilter(nextFilter);
+    setExpandedWallets({});
+  };
+
+  const handleBackToWallets = () => {
+    setSelectedWallet(null);
+  };
+
+  const renderNav = () => {
+    if (activeBottomTab !== "Wallets") {
+      return (
+        <div className="flex flex-1 justify-center">
+          <span className={`${baseTextClass} text-white`}>
+            {activeBottomTab}
+          </span>
+        </div>
+      );
+    }
+
+    if (selectedWallet) {
+      return (
+        <div className="flex flex-1 items-center gap-3">
+          <button
+            type="button"
+            onClick={handleBackToWallets}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-white transition hover:bg-white/10"
+            aria-label="Back to wallets"
+          >
+            <ChevronLeftIcon />
+          </button>
+          <span className={`${baseTextClass} text-white`}>
+            {selectedWallet.name}
+          </span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex flex-1 items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-violet-600 text-white">
+          <WalletGlyph />
+        </div>
+        <span className={`${baseTextClass} text-white`}>Wallets</span>
+      </div>
+    );
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="flex min-h-screen justify-center bg-neutral-950 font-sans text-white">
+      <div className="relative flex w-full max-w-[600px] flex-col overflow-hidden bg-neutral-950">
+        <header className="flex h-16 items-center justify-between px-6">
+          {renderNav()}
+          {activeBottomTab === "Wallets" && !selectedWallet ? (
+            <button
+              type="button"
+              className={`flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-white transition hover:bg-white/10 ${baseTextClass}`}
+              aria-label="Wallet info"
+            >
+              i
+            </button>
+          ) : (
+            <div className="h-8 w-8" />
+          )}
+        </header>
+
+        <main className={`flex-1 overflow-y-auto px-6 pb-28 ${baseTextClass} text-white`}>
+          {activeBottomTab === "Wallets" ? (
+            selectedWallet ? (
+              <div className="flex h-full items-center justify-center text-white">
+                wallet detail
+              </div>
+            ) : (
+              <WalletFeed
+                wallets={walletViews}
+                walletFilter={walletFilter}
+                expandedWallets={expandedWallets}
+                onToggleWallet={handleToggleWallet}
+                onWalletSelect={handleWalletSelect}
+                onWalletFilterChange={handleWalletFilterChange}
+              />
+            )
+          ) : (
+            <div className="flex h-full items-center justify-center text-white">
+              {activeBottomTab === "Home" ? "Home" : "Sugar"}
+            </div>
+          )}
+        </main>
+
+        <BottomTabs
+          activeTab={activeBottomTab}
+          onChange={(tab) => {
+            setActiveBottomTab(tab);
+            if (tab !== "Wallets") {
+              setSelectedWallet(null);
+            }
+          }}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
     </div>
   );
+}
+
+function WalletFeed({
+  wallets,
+  walletFilter,
+  expandedWallets,
+  onToggleWallet,
+  onWalletSelect,
+  onWalletFilterChange,
+}: {
+  wallets: WalletView[];
+  walletFilter: WalletFilter;
+  expandedWallets: Record<string, boolean>;
+  onToggleWallet: (walletId: string) => void;
+  onWalletSelect: (wallet: WalletView) => void;
+  onWalletFilterChange: (filter: WalletFilter) => void;
+}) {
+  const [sectionExpansion, setSectionExpansion] = useState<Record<string, boolean>>(
+    {},
+  );
+
+  const filteredWallets = useMemo(() => {
+    if (walletFilter === "All") return wallets;
+    if (walletFilter === "Watching") {
+      return wallets.filter(
+        (wallet) =>
+          wallet.status === "Watching" || wallet.status === "Trading",
+      );
+    }
+    if (walletFilter === "KOLs") {
+      return wallets.filter((wallet) => wallet.status === "KOL");
+    }
+    if (walletFilter === "Whales") {
+      return wallets.filter((wallet) => wallet.status === "Whale");
+    }
+    return wallets;
+  }, [wallets, walletFilter]);
+
+  const sections = useMemo<Section[]>(() => {
+    const result: Section[] = [];
+
+    const autoTrade = filteredWallets.filter(
+      (wallet) => wallet.status === "Trading",
+    );
+    if (autoTrade.length > 0) {
+      result.push({ id: "auto-trade", name: "Auto-trade", wallets: autoTrade });
+    }
+
+    const watching = filteredWallets.filter(
+      (wallet) => wallet.status === "Watching",
+    );
+    if (watching.length > 0) {
+      result.push({ id: "watching", name: "Watching", wallets: watching });
+    }
+
+    const discover = filteredWallets.filter((wallet) =>
+      discoverStatuses.includes(wallet.status),
+    );
+    if (discover.length > 0) {
+      result.push({ id: "discover", name: "Discover", wallets: discover });
+    }
+
+    return result;
+  }, [filteredWallets]);
+
+  const handleSectionToggle = (sectionId: string) => {
+    setSectionExpansion((prev) => {
+      const current = prev[sectionId] ?? true;
+      return {
+        ...prev,
+        [sectionId]: !current,
+      };
+    });
+  };
+
+  return (
+    <div className={`${baseTextClass} pb-8 text-white`}>
+      <div className="flex flex-wrap gap-2">
+        {walletFilterTabs.map((tab) => {
+          const isActive = tab === walletFilter;
+          return (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => onWalletFilterChange(tab)}
+              className={`rounded-full border px-4 py-2 transition ${baseTextClass} ${
+                isActive
+                  ? "border-transparent bg-white text-black"
+                  : "border-white/10 bg-white/5 text-white hover:bg-white/10"
+              }`}
+            >
+              {tab}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="mt-10 space-y-10">
+        {sections.length === 0 ? (
+          <div className="flex h-48 items-center justify-center rounded-2xl border border-dashed border-white/10 text-[#A1A1A1]">
+            No wallets in this view yet.
+          </div>
+        ) : (
+          sections.map((section) => {
+            const isExpanded = sectionExpansion[section.id] ?? true;
+            return (
+              <section key={section.id} className="space-y-7">
+                <div className="flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => handleSectionToggle(section.id)}
+                    className="flex items-center gap-3"
+                    aria-expanded={isExpanded}
+                  >
+                    <span className="text-[14px] font-medium tracking-[0.02em] text-[#848484]">
+                      {section.name}
+                    </span>
+                    <SectionCaret open={isExpanded} />
+                  </button>
+                  <div
+                    className={`${baseTextClass} flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-[16px] text-[#A1A1A1]`}
+                  >
+                    +
+                  </div>
+                </div>
+
+                {isExpanded && (
+                  <div className="space-y-7">
+                    {section.wallets.map((wallet) => (
+                      <WalletRow
+                        key={wallet.id}
+                        wallet={wallet}
+                        expanded={Boolean(expandedWallets[wallet.id])}
+                        onToggle={() => onToggleWallet(wallet.id)}
+                        onSelect={() => onWalletSelect(wallet)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </section>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+}
+
+function WalletRow({
+  wallet,
+  expanded,
+  onToggle,
+  onSelect,
+}: {
+  wallet: WalletView;
+  expanded: boolean;
+  onToggle: () => void;
+  onSelect: () => void;
+}) {
+  const badgeClasses = getBadgeClasses(wallet.name);
+  const summary = getTradeSummary(wallet.trades);
+  const walletMoney = getMoneyParts(wallet.moneyPNL);
+  const walletPercent = getPercentDisplay(wallet.percentPNL);
+
+  return (
+    <div>
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={onToggle}
+          className="flex h-5 w-5 shrink-0 items-center justify-start text-white transition hover:text-white"
+          aria-label={expanded ? "Hide trades" : "Show trades"}
+        >
+          <ChevronIndicator direction={expanded ? "down" : "right"} />
+        </button>
+
+        <button
+          type="button"
+          onClick={onSelect}
+          className="flex flex-1 items-center justify-between rounded-xl px-0 text-left transition focus-visible:outline-none"
+          aria-label={`Open ${wallet.name}`}
+        >
+          <div className="flex items-center gap-3">
+            <span
+              className={`flex h-5 w-5 items-center justify-center rounded-[5px] text-[15px] font-semibold text-white ${badgeClasses}`}
+            >
+              @
+            </span>
+            <span className={`${baseTextClass} text-white`}>{wallet.name}</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className={`${baseTextClass} text-white`}>
+              <span className="text-[#A1A1A1]">{walletMoney.sign}</span>
+              {walletMoney.amount}
+            </span>
+            <span className={`${baseTextClass} text-[#A1A1A1]`}>
+              {walletPercent}
+            </span>
+          </div>
+        </button>
+      </div>
+
+      {expanded && wallet.trades.length > 0 && (
+        <div className="mt-6 pl-8">
+          {summary && (
+            <div
+              className={`flex items-center justify-between ${baseTextClass} text-[#464B55]`}
+            >
+              <span>{summary.tradesLabel}</span>
+              <span>{summary.winRateLabel}</span>
+            </div>
+          )}
+
+          <div className="mt-6 space-y-7">
+            {wallet.trades.map((trade, index) => {
+              const tradeMoney = getMoneyParts(trade.pricePNL);
+              const tradePercent = getPercentDisplay(trade.percentPNL);
+              return (
+                <div
+                  key={`${wallet.id}-${trade.id}-${index}`}
+                  className="flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-3">
+                    {trade.image ? (
+                      <div className="h-5 w-5 overflow-hidden rounded-[5px]">
+                        <Image
+                          src={trade.image}
+                          alt={trade.name}
+                          width={20}
+                          height={20}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <span
+                        className={`flex h-5 w-5 items-center justify-center rounded-[5px] text-[15px] font-semibold text-white ${getTokenBadgeClasses(trade.name)}`}
+                      >
+                        {trade.name.charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                    <span className={`${baseTextClass} text-white`}>
+                      {trade.name}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className={`${baseTextClass} text-white`}>
+                      <span className="text-[#A1A1A1]">{tradeMoney.sign}</span>
+                      {tradeMoney.amount}
+                    </span>
+                    <span className={`${baseTextClass} text-[#A1A1A1]`}>
+                      {tradePercent}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function BottomTabs({
+  activeTab,
+  onChange,
+}: {
+  activeTab: BottomTabId;
+  onChange: (tab: BottomTabId) => void;
+}) {
+  return (
+    <nav className="absolute bottom-0 left-0 right-0 border-t border-white/10 bg-neutral-950/95 backdrop-blur">
+      <div className="flex h-16 items-center justify-around px-8">
+        {bottomTabs.map((tab) => {
+          const isActive = tab.id === activeTab;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => onChange(tab.id)}
+              className="flex flex-col items-center gap-1"
+            >
+              <tab.icon active={isActive} />
+              <span
+                className={`${baseTextClass} ${
+                  isActive ? "text-white" : "text-[#A1A1A1]"
+                }`}
+              >
+                {tab.label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
+
+function WalletTabIcon({ active }: { active: boolean }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={`h-6 w-6 ${active ? "text-violet-400" : "text-zinc-500"}`}
+      fill="currentColor"
+    >
+      <path d="M4 6.75A2.75 2.75 0 0 1 6.75 4h10.5A2.75 2.75 0 0 1 20 6.75v10.5A2.75 2.75 0 0 1 17.25 20H6.75A2.75 2.75 0 0 1 4 17.25zm2.75-.25a.75.75 0 0 0-.75.75v9.5c0 .414.336.75.75.75h10.5a.75.75 0 0 0 .75-.75v-2.25h-3a2.75 2.75 0 0 1-2.75-2.75A2.75 2.75 0 0 1 14.25 9h3V7.25a.75.75 0 0 0-.75-.75zM17.25 10.5h-3a1.25 1.25 0 1 0 0 2.5h3z" />
+    </svg>
+  );
+}
+
+function HomeTabIcon({ active }: { active: boolean }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={`h-6 w-6 ${active ? "text-zinc-100" : "text-zinc-500"}`}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.6}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M3 11.5L12 4l9 7.5" />
+      <path d="M5.5 10v9h5v-5h3v5h5v-9" />
+    </svg>
+  );
+}
+
+function SugarTabIcon({ active }: { active: boolean }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={`h-6 w-6 ${active ? "text-pink-400" : "text-zinc-500"}`}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.6}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 4c1.7-2.667 6-2.667 7.7 0 1.7 2.667.75 6.4-3.7 9.2l-4 2.5-4-2.5C3.55 10.4 2.6 6.667 4.3 4 6 1.333 10.3 1.333 12 4z" />
+      <path d="M7 13l5 7 5-7" />
+    </svg>
+  );
+}
+
+function SectionCaret({ open }: { open: boolean }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={`h-3.5 w-3.5 text-[#464B55] transition-transform duration-200 ${
+        open ? "" : "-rotate-90"
+      }`}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  );
+}
+
+function ChevronIndicator({ direction }: { direction: "right" | "down" }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={`h-[14px] w-[14px] transform text-white transition-transform duration-200 ${
+        direction === "down" ? "rotate-90" : ""
+      }`}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M8 5l8 7-8 7" />
+    </svg>
+  );
+}
+
+function ChevronLeftIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="h-5 w-5 text-white"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M15 19l-7-7 7-7" />
+    </svg>
+  );
+}
+
+function WalletGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+      <path d="M4 7.5A3.5 3.5 0 0 1 7.5 4h9A3.5 3.5 0 0 1 20 7.5v9a3.5 3.5 0 0 1-3.5 3.5h-9A3.5 3.5 0 0 1 4 16.5z" />
+      <path d="M17 11h-4a2 2 0 1 0 0 4h4z" className="text-violet-200" />
+    </svg>
+  );
+}
+
+function getBadgeClasses(handle: string) {
+  const sum = handle
+    .split("")
+    .reduce((total, char) => total + char.charCodeAt(0), 0);
+  return badgePalette[sum % badgePalette.length];
+}
+
+function getTokenBadgeClasses(name: string) {
+  const sum = name
+    .split("")
+    .reduce((total, char) => total + char.charCodeAt(0), 0);
+  return tokenColorPalette[sum % tokenColorPalette.length];
+}
+
+function getMoneyParts(value: number) {
+  const sign = value >= 0 ? "+" : "-";
+  const amount = moneyFormatter.format(Math.abs(value));
+  return { sign, amount };
+}
+
+function getPercentDisplay(value: number) {
+  const sign = value >= 0 ? "+" : "-";
+  return `${sign}${Math.abs(value)}%`;
+}
+
+function getTradesForWallet(wallet: WalletRecord, index: number): TokenRecord[] {
+  const start = (index * 3 + wallet.name.length) % tokenRecords.length;
+  const trades: TokenRecord[] = [];
+
+  for (let offset = 0; offset < 5; offset += 1) {
+    trades.push(tokenRecords[(start + offset) % tokenRecords.length]);
+  }
+
+  return trades;
+}
+
+function getTradeSummary(trades: TokenRecord[]) {
+  if (trades.length === 0) return null;
+
+  const wins = trades.filter((trade) => trade.pricePNL >= 0).length;
+  const winRate = Math.round((wins / trades.length) * 100);
+
+  return {
+    tradesLabel: `${trades.length} trades`,
+    winRateLabel: `${winRate}% win rate`,
+  };
 }
