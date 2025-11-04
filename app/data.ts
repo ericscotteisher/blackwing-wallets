@@ -6,6 +6,7 @@ export type WalletRecord = {
   moneyPNL: number;
   percentPNL: number;
   status: WalletStatus;
+  addedAt: string;
 };
 
 export type TokenStatus = "open" | "closed";
@@ -125,6 +126,16 @@ const allWalletNames = [...specialWallets, ...fiveDigitWallets];
 const tradingIndexes = new Set([0, 1, 2]);
 const watchingIndexes = new Set([3, 4, 5, 6, 7]);
 
+const startDate = new Date("2025-11-01T00:00:00Z").getTime();
+const endDate = new Date("2025-11-05T23:59:59Z").getTime();
+const dateSpan = endDate - startDate;
+const dateStep = Math.floor(dateSpan / (allWalletNames.length + 1));
+
+function deriveTimestamp(index: number) {
+  const time = startDate + dateStep * (index + 1);
+  return new Date(time).toISOString();
+}
+
 function deriveWalletStatus(index: number): WalletStatus {
   if (tradingIndexes.has(index)) return "Trading";
   if (watchingIndexes.has(index)) return "Watching";
@@ -168,6 +179,7 @@ export const walletRecords: WalletRecord[] = allWalletNames.map(
       moneyPNL,
       percentPNL,
       status,
+      addedAt: deriveTimestamp(index),
     };
   },
 );

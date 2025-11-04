@@ -13,6 +13,7 @@ import {
 
 const walletFilterTabs = ["All", "Watching", "KOLs", "Whales", "Alpha"] as const;
 type WalletFilter = (typeof walletFilterTabs)[number];
+type DiscoverSort = "recent" | "top";
 
 type WalletView = WalletRecord & {
   trades: TokenRecord[];
@@ -96,6 +97,8 @@ export default function Home() {
     Record<string, boolean>
   >({});
   const [selectedWallet, setSelectedWallet] = useState<WalletView | null>(null);
+  const [discoverSort, setDiscoverSort] = useState<DiscoverSort>("recent");
+  const [isDiscoverSheetOpen, setIsDiscoverSheetOpen] = useState(false);
 
   const handleToggleWallet = (walletId: string) => {
     setExpandedWallets((prev) => ({
@@ -188,6 +191,8 @@ export default function Home() {
                 onToggleWallet={handleToggleWallet}
                 onWalletSelect={handleWalletSelect}
                 onWalletFilterChange={handleWalletFilterChange}
+                discoverSort={discoverSort}
+                onDiscoverEllipsis={() => setIsDiscoverSheetOpen(true)}
               />
             )
           ) : (
@@ -206,6 +211,15 @@ export default function Home() {
             }
           }}
         />
+        <DiscoverSortSheet
+          open={isDiscoverSheetOpen}
+          selected={discoverSort}
+          onSelect={(value) => {
+            setDiscoverSort(value);
+            setIsDiscoverSheetOpen(false);
+          }}
+          onClose={() => setIsDiscoverSheetOpen(false)}
+        />
       </div>
     </div>
   );
@@ -218,6 +232,8 @@ function WalletFeed({
   onToggleWallet,
   onWalletSelect,
   onWalletFilterChange,
+  discoverSort,
+  onDiscoverEllipsis,
 }: {
   wallets: WalletView[];
   walletFilter: WalletFilter;
@@ -225,6 +241,8 @@ function WalletFeed({
   onToggleWallet: (walletId: string) => void;
   onWalletSelect: (wallet: WalletView) => void;
   onWalletFilterChange: (filter: WalletFilter) => void;
+  discoverSort: DiscoverSort;
+  onDiscoverEllipsis: () => void;
 }) {
   const [sectionExpansion, setSectionExpansion] = useState<Record<string, boolean>>(
     {},
@@ -271,11 +289,19 @@ function WalletFeed({
       discoverStatuses.includes(wallet.status),
     );
     if (discover.length > 0) {
-      result.push({ id: "discover", name: "Discover", wallets: discover });
+      const sorted = [...discover].sort((a, b) => {
+        if (discoverSort === "recent") {
+          return (
+            new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime()
+          );
+        }
+        return b.moneyPNL - a.moneyPNL;
+      });
+      result.push({ id: "discover", name: "Discover", wallets: sorted });
     }
 
     return result;
-  }, [filteredWallets]);
+  }, [filteredWallets, discoverSort]);
 
   const handleSectionToggle = (sectionId: string) => {
     setSectionExpansion((prev) => {
@@ -342,7 +368,14 @@ function WalletFeed({
                     </span>
                     <SectionCaret open={isExpanded} />
                   </button>
-                  <SectionActions sectionId={section.id} />
+                  <SectionActions
+                    sectionId={section.id}
+                    onEllipsis={
+                      section.id === "discover"
+                        ? onDiscoverEllipsis
+                        : undefined
+                    }
+                  />
                 </div>
 
                 <AnimatedList
@@ -447,8 +480,6 @@ function WalletRow({
             items={tradeEntries}
             expanded={expanded}
             className="mt-6 space-y-7"
-            enterTotal={120}
-            exitTotal={120}
             getKey={(entry) => entry.id}
             renderItem={(entry) => {
               if (entry.kind === "summary") {
@@ -558,8 +589,8 @@ function AnimatedList<T>({
   renderItem,
   getKey,
   className,
-  enterTotal = 120,
-  exitTotal = 120,
+  enterTotal = 200,
+  exitTotal = 220,
 }: AnimatedListProps<T>) {
   const count = items.length;
   const enterStep = count > 0 ? enterTotal / count : enterTotal;
@@ -645,11 +676,17 @@ function AnimatedList<T>({
   );
 }
 
-function SectionActions({ sectionId }: { sectionId: string }) {
+function SectionActions({
+  sectionId,
+  onEllipsis,
+}: {
+  sectionId: string;
+  onEllipsis?: () => void;
+}) {
   if (sectionId === "auto-trade") {
     return (
       <div className="flex items-center gap-3 text-[15px] text-[#848484]">
-        <EllipsisIcon />
+        <EllipsisButton onClick={onEllipsis} />
         <InfoIcon filled />
       </div>
     );
@@ -658,7 +695,7 @@ function SectionActions({ sectionId }: { sectionId: string }) {
   if (sectionId === "watching") {
     return (
       <div className="flex items-center gap-3 text-[15px] text-[#848484]">
-        <EllipsisIcon />
+        <EllipsisButton onClick={onEllipsis} />
         <PlusIcon />
       </div>
     );
@@ -666,7 +703,83 @@ function SectionActions({ sectionId }: { sectionId: string }) {
 
   return (
     <div className="flex items-center gap-3 text-[15px] text-[#848484]">
+      <EllipsisButton onClick={onEllipsis} />
+    </div>
+  );
+}
+
+function EllipsisButton({ onClick }: { onClick?: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex items-center text-inherit ${onClick ? "" : "cursor-default"}`}
+    >
       <EllipsisIcon />
+    </button>
+  );
+}
+
+const discoverSortOptions: Array<{ value: DiscoverSort; label: string }> = [
+  { value: "recent", label: "Recently added" },
+  { value: "top", label: "Top performer" },
+];
+
+function DiscoverSortSheet({
+  open,
+  selected,
+  onSelect,
+  onClose,
+}: {
+  open: boolean;
+  selected: DiscoverSort;
+  onSelect: (value: DiscoverSort) => void;
+  onClose: () => void;
+}) {
+  return (
+    <div
+      className={`fixed inset-0 z-50 flex flex-col justify-end transition ${
+        open ? "pointer-events-auto bg-black/40" : "pointer-events-none bg-transparent"
+      }`}
+    >
+      <button
+        type="button"
+        onClick={onClose}
+        className="absolute inset-0 h-full w-full"
+        aria-label="Close sort options"
+      />
+      <div
+        className={`relative mx-4 mb-6 translate-y-6 space-y-3 rounded-3xl bg-[#1B1B1D] p-5 transition-transform duration-200 ease-out ${
+          open ? "translate-y-0" : "translate-y-10 opacity-0"
+        }`}
+      >
+        <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#141417]">
+          {discoverSortOptions.map((option, index) => {
+            const isSelected = option.value === selected;
+            const isLast = index === discoverSortOptions.length - 1;
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => onSelect(option.value)}
+                className={`flex w-full items-center justify-between px-6 py-4 text-left text-[16px] font-medium tracking-[0.02em] text-white ${
+                  isLast ? "" : "border-b border-white/10"
+                }`}
+              >
+                <span>{option.label}</span>
+                {isSelected && <CheckIcon />}
+              </button>
+            );
+          })}
+        </div>
+        <button
+          type="button"
+          onClick={onClose}
+          className="block w-full rounded-2xl border border-white/10 bg-[#141417] px-6 py-4 text-center text-[16px] font-medium tracking-[0.02em] text-white"
+        >
+          Close
+        </button>
+      </div>
     </div>
   );
 }
@@ -701,6 +814,22 @@ function PlusIcon() {
     >
       <path d="M12 5v14" />
       <path d="M5 12h14" />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="h-5 w-5 text-white"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M5 12l5 5 9-10" />
     </svg>
   );
 }
