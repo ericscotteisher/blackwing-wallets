@@ -290,7 +290,7 @@ function WalletFeed({
   return (
     <div className={`${baseTextClass} pb-8 text-white`}>
       <div className="-mx-6 mb-8 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none]">
-        <div className="flex w-max gap-2 px-6 [&::-webkit-scrollbar]:hidden">
+        <div className="flex w-max gap-1 px-6 [&::-webkit-scrollbar]:hidden">
           {walletFilterTabs.map((tab) => {
             const isActive = tab === walletFilter;
             return (
@@ -298,10 +298,10 @@ function WalletFeed({
                 key={tab}
                 type="button"
                 onClick={() => onWalletFilterChange(tab)}
-                className={`rounded-full border px-4 py-2 transition ${baseTextClass} ${
+                className={`h-9 rounded-[10px] border px-4 transition font-semibold tracking-[0.02em] ${
                   isActive
                     ? "border-transparent bg-white text-black"
-                    : "border-white/10 bg-white/5 text-white hover:bg-white/10"
+                    : "border-[#181818] bg-transparent text-white hover:border-white/20"
                 }`}
               >
                 {tab}
