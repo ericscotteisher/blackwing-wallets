@@ -129,8 +129,18 @@ function deriveWalletStatus(index: number): WalletStatus {
   if (tradingIndexes.has(index)) return "Trading";
   if (watchingIndexes.has(index)) return "Watching";
 
-  const discoverStatuses: WalletStatus[] = ["KOL", "Whale", "Alpha"];
-  return discoverStatuses[index % discoverStatuses.length];
+  const discoverStart = tradingIndexes.size + watchingIndexes.size;
+  if (index < discoverStart) {
+    return "Watching";
+  }
+
+  const discoverIndex = index - discoverStart;
+  if (discoverIndex % 4 === 2) {
+    return "Alpha";
+  }
+
+  const discoverStatuses: WalletStatus[] = ["KOL", "Whale"];
+  return discoverStatuses[discoverIndex % discoverStatuses.length];
 }
 
 function derivePNL(name: string, index: number) {

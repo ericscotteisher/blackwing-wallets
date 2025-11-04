@@ -10,7 +10,7 @@ import {
   WalletStatus,
 } from "./data";
 
-const walletFilterTabs = ["All", "Watching", "KOLs", "Whales"] as const;
+const walletFilterTabs = ["All", "Watching", "KOLs", "Whales", "Alpha"] as const;
 type WalletFilter = (typeof walletFilterTabs)[number];
 
 type WalletView = WalletRecord & {
@@ -233,6 +233,9 @@ function WalletFeed({
     }
     if (walletFilter === "Whales") {
       return wallets.filter((wallet) => wallet.status === "Whale");
+    }
+    if (walletFilter === "Alpha") {
+      return wallets.filter((wallet) => wallet.status === "Alpha");
     }
     return wallets;
   }, [wallets, walletFilter]);
