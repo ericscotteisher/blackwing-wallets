@@ -547,7 +547,7 @@ function SectionCaret({ open }: { open: boolean }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      className={`h-3.5 w-3.5 text-[#464B55] transition-transform duration-200 ${
+      className={`h-5 w-5 text-[#464B55] transition-transform duration-200 ${
         open ? "" : "-rotate-90"
       }`}
       fill="none"
