@@ -429,7 +429,7 @@ function WalletRow({
             </span>
             <span className={`${baseTextClass} text-white`}>{wallet.name}</span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
             <span className={`${baseTextClass} text-white`}>
               <span className="text-[#A1A1A1]">{walletMoney.sign}</span>
               {walletMoney.amount}
@@ -682,8 +682,9 @@ function EllipsisIcon() {
 }
 
 function InfoIcon({ filled }: { filled?: boolean }) {
+  void filled;
   return (
-    <div className="flex h-5 w-5 items-center justify-center rounded-full text-[12px] font-bold text-white bg-white/4">i</div>
+    <div className="flex h-5 w-5 items-center justify-center rounded-full text-[14px] font-bold text-white bg-white/4">i</div>
   );
 }
 
@@ -833,7 +834,7 @@ function getMoneyParts(value: number) {
 
 function getPercentDisplay(value: number) {
   const sign = value >= 0 ? "+" : "-";
-  return `${sign}${Math.abs(value)}%`;
+  return `(${sign}${Math.abs(value)}%)`;
 }
 
 function getTradesForWallet(wallet: WalletRecord, index: number): TokenRecord[] {
