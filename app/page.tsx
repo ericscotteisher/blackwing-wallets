@@ -154,7 +154,7 @@ export default function Home() {
         <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-violet-600 text-white">
           <WalletGlyph />
         </div>
-        <span className={`text-[24px] text-white`}>Wallets</span>
+        <span className={`text-[24px] font-semibold tracking-[0.02em] text-white`}>Wallets</span>
       </div>
     );
   };
@@ -438,7 +438,7 @@ function WalletRow({
 
   return (
     <div>
-      <div className="group flex items-center gap-3 rounded-2xl transition-colors duration-200 hover:bg-[#181818] active:bg-[#181818]/80">
+      <div className="group flex items-center gap-0 rounded-2xl transition-colors duration-200 hover:bg-[#181818] active:bg-[#181818]/80">
         <button
           type="button"
           onClick={onToggle}
@@ -451,7 +451,7 @@ function WalletRow({
         <button
           type="button"
           onClick={onSelect}
-          className="flex flex-1 items-center justify-between rounded-2xl px-3 py-4 text-left transition focus-visible:outline-none"
+          className="flex flex-1 items-center justify-between rounded-2xl py-4 text-left transition focus-visible:outline-none"
           aria-label={`Open ${wallet.name}`}
         >
           <div className="flex items-center gap-3">
@@ -485,7 +485,7 @@ function WalletRow({
               if (entry.kind === "summary") {
                 return (
                   <div
-                    className={`flex items-center mb-2 px-3 justify-between ${baseTextClass} text-[#464B55]`}
+                    className={`flex items-center mb-2 px-0 justify-between ${baseTextClass} text-[#464B55]`}
                   >
                     <span>{entry.summary.tradesLabel}</span>
                     <span>{entry.summary.winRateLabel}</span>
@@ -496,7 +496,7 @@ function WalletRow({
               const tradeMoney = getMoneyParts(trade.pricePNL);
               const tradePercent = getPercentDisplay(trade.percentPNL);
               return (
-                <div className="group flex items-center justify-between rounded-2xl px-3 py-4 transition-colors duration-200 hover:bg-[#181818] active:bg-[#181818]/80">
+                <div className="group flex items-center justify-between rounded-2xl py-4 transition-colors duration-200 hover:bg-[#181818] active:bg-[#181818]/80">
                   <div className="flex items-center gap-3">
                     {trade.image ? (
                       <div className="h-5 w-5 overflow-hidden rounded-[5px]">
