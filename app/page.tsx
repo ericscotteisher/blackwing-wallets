@@ -446,7 +446,7 @@ function WalletRow({
 
   return (
     <div>
-      <div className="group flex items-center gap-0 transition-colors duration-200 hover:bg-[#181818] active:bg-[#181818]/80">
+      <div className="group flex items-center gap-0 transition-colors duration-200 active:bg-[#181818]/80">
         <button
           type="button"
           onClick={onToggle}
@@ -504,7 +504,7 @@ function WalletRow({
               const tradeMoney = getMoneyParts(trade.pricePNL);
               const tradePercent = getPercentDisplay(trade.percentPNL);
               return (
-                <div className="group flex items-center justify-between py-4 transition-colors duration-200 hover:bg-[#181818] active:bg-[#181818]/80">
+                <div className="group flex items-center justify-between py-4 transition-colors duration-200 active:bg-[#181818]/80">
                   <div className="flex items-center gap-3">
                     {trade.image ? (
                       <div className="h-5 w-5 overflow-hidden rounded-[5px]">
