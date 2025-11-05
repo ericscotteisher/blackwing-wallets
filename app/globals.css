@@ -25,6 +25,8 @@ body {
   font-family: var(--font-inter), sans-serif;
 }
 
-button {
-  background: none;
+@layer base {
+  button {
+    background: none;
+  }
 }
