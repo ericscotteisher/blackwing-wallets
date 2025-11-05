@@ -1,8 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import type { ReactNode } from "react";
+import { animate, motion, useMotionValue, useTransform } from "motion/react";
+import type { AnimationPlaybackControls, MotionValue, PanInfo } from "motion";
 import {
   tokenRecords,
   walletRecords,
@@ -19,8 +28,10 @@ type WalletView = WalletRecord & {
   trades: TokenRecord[];
 };
 
+type WalletSectionId = "auto-trade" | "watching" | "discover";
+
 type Section = {
-  id: string;
+  id: WalletSectionId;
   name: string;
   wallets: WalletView[];
 };
@@ -35,6 +46,38 @@ type TradeListEntry =
   | { kind: "trade"; id: string; trade: TokenRecord };
 
 const discoverStatuses: WalletStatus[] = ["KOL", "Whale", "Alpha"];
+
+type WalletSwipeAction = {
+  id: string;
+  label: string;
+  tone: "default" | "positive" | "negative";
+};
+
+const walletSwipeActions: Record<WalletSectionId, WalletSwipeAction[]> = {
+  "auto-trade": [
+    { id: "disable-auto", label: "- auto", tone: "negative" },
+    { id: "adjust-settings", label: "adjust settings", tone: "default" },
+  ],
+  watching: [
+    { id: "enable-auto", label: "+ auto", tone: "positive" },
+    { id: "unfollow", label: "unfollow", tone: "default" },
+  ],
+  discover: [
+    { id: "follow", label: "follow", tone: "positive" },
+    { id: "enable-auto", label: "+ auto", tone: "positive" },
+    { id: "block", label: "block", tone: "negative" },
+  ],
+};
+
+const actionToneClasses: Record<WalletSwipeAction["tone"], string> = {
+  default: "bg-[#1F1F1F] text-white",
+  positive: "bg-[#2157FF] text-white",
+  negative: "bg-[#FF4D57] text-white",
+};
+
+const actionRevealOffsetPx = 40;
+const actionRevealWindowPx = 40;
+const actionMinScale = 0.2;
 
 const badgePalette = [
   "bg-amber-500/20 text-amber-200",
@@ -392,6 +435,7 @@ function WalletFeed({
                   className="space-y-0"
                   renderItem={(wallet) => (
                     <WalletRow
+                      sectionId={section.id}
                       wallet={wallet}
                       expanded={Boolean(expandedWallets[wallet.id])}
                       onToggle={() => onToggleWallet(wallet.id)}
@@ -410,16 +454,19 @@ function WalletFeed({
 }
 
 function WalletRow({
+  sectionId,
   wallet,
   expanded,
   onToggle,
   onSelect,
 }: {
+  sectionId: WalletSectionId;
   wallet: WalletView;
   expanded: boolean;
   onToggle: () => void;
   onSelect: () => void;
 }) {
+  const actions = walletSwipeActions[sectionId] ?? [];
   const badgeClasses = getBadgeClasses(wallet.name);
   const summary = getTradeSummary(wallet.trades);
   const walletMoney = getMoneyParts(wallet.moneyPNL);
@@ -443,52 +490,224 @@ function WalletRow({
     return entries;
   }, [summary, wallet.id, wallet.trades]);
   const hasTradeEntries = tradeEntries.length > 0;
+  const x = useMotionValue(0);
+  const dragDistance = useTransform(x, (value) => Math.max(0, -value));
+  const actionsContainerRef = useRef<HTMLDivElement | null>(null);
+  const actionsWidthRef = useRef(0);
+  const animationRef = useRef<AnimationPlaybackControls | null>(null);
+  const isDraggingRef = useRef(false);
+  const [actionsWidth, setActionsWidth] = useState(0);
+  const isOpenRef = useRef(false);
+
+  const animateTo = useCallback(
+    (target: number) => {
+      animationRef.current?.stop();
+      animationRef.current = animate(x, target, {
+        type: "spring",
+        bounce: 0,
+        duration: 0.28,
+      });
+    },
+    [x],
+  );
+
+  const openRow = useCallback(() => {
+    if (!actionsWidthRef.current) return;
+    isOpenRef.current = true;
+    animateTo(-actionsWidthRef.current);
+  }, [animateTo]);
+
+  const closeRow = useCallback(() => {
+    if (!isOpenRef.current && x.get() === 0) {
+      return;
+    }
+    isOpenRef.current = false;
+    animateTo(0);
+  }, [animateTo, x]);
+
+  useLayoutEffect(() => {
+    const node = actionsContainerRef.current;
+    if (!node) return;
+
+    const updateWidth = () => {
+      const width = actions.length === 0 ? 0 : node.offsetWidth;
+      if (actionsWidthRef.current === width) return;
+      actionsWidthRef.current = width;
+      setActionsWidth(width);
+    };
+
+    updateWidth();
+
+    if (typeof ResizeObserver !== "undefined") {
+      const observer = new ResizeObserver(updateWidth);
+      observer.observe(node);
+      return () => observer.disconnect();
+    }
+
+    window.addEventListener("resize", updateWidth);
+    return () => {
+      window.removeEventListener("resize", updateWidth);
+    };
+  }, [actions.length]);
+
+  useEffect(() => {
+    if (!isOpenRef.current && x.get() === 0) {
+      return;
+    }
+    animationRef.current?.stop();
+    x.set(0);
+    isOpenRef.current = false;
+  }, [sectionId, x]);
+
+  useEffect(() => {
+    if (!isOpenRef.current) return;
+
+    if (!actionsWidth) {
+      isOpenRef.current = false;
+      x.set(0);
+      return;
+    }
+
+    animationRef.current?.stop();
+    x.set(-actionsWidth);
+  }, [actionsWidth, x]);
+
+  const handleDragStart = () => {
+    isDraggingRef.current = true;
+    animationRef.current?.stop();
+  };
+
+  const finishDrag = () => {
+    requestAnimationFrame(() => {
+      isDraggingRef.current = false;
+    });
+  };
+
+  const handleDragEnd = (
+    _event: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo,
+  ) => {
+    if (!actionsWidthRef.current) {
+      closeRow();
+      finishDrag();
+      return;
+    }
+
+    const currentX = x.get();
+    const projected = currentX + info.velocity.x * 0.2;
+    const threshold = -actionsWidthRef.current * 0.35;
+
+    if (projected < threshold) {
+      openRow();
+    } else {
+      closeRow();
+    }
+
+    finishDrag();
+  };
+
+  const handleToggleClick = () => {
+    if (isDraggingRef.current) return;
+    if (isOpenRef.current) {
+      closeRow();
+    }
+    onToggle();
+  };
+
+  const handleSelectClick = () => {
+    if (isDraggingRef.current) return;
+    if (isOpenRef.current) {
+      closeRow();
+    }
+    onSelect();
+  };
+
+  const handleActionClick = (action: WalletSwipeAction) => {
+    closeRow();
+    if (process.env.NODE_ENV !== "production") {
+      console.info(`[wallet-actions] ${action.id} on ${wallet.id}`);
+    }
+  };
+
+  const dragConstraints =
+    actions.length > 0
+      ? { left: -actionsWidth, right: 0 }
+      : { left: 0, right: 0 };
 
   return (
     <div>
-      <div className="group flex items-center gap-0 transition-colors duration-200 active:bg-[#181818]/80">
-        <button
-          type="button"
-          onClick={onToggle}
-          className="flex h-10 w-8 shrink-0 items-center justify-left text-white transition"
-          aria-label={expanded ? "Hide trades" : "Show trades"}
+      <div className="relative overflow-hidden bg-[#0C0C0C]">
+        <div
+          ref={actionsContainerRef}
+          className="absolute inset-y-0 right-0 z-0 flex items-center gap-2 px-3 bg-[#0C0C0C]"
         >
-          <ChevronIndicator direction={expanded ? "down" : "right"} />
-        </button>
+          {actions.map((action, index) => (
+            <WalletRowActionButton
+              key={action.id}
+              action={action}
+              index={index}
+              total={actions.length}
+              dragDistance={dragDistance}
+              onPress={() => handleActionClick(action)}
+            />
+          ))}
+        </div>
+        <motion.div
+          drag={actions.length > 0 ? "x" : false}
+          dragConstraints={dragConstraints}
+          dragElastic={{ left: 0.04, right: 0.2 }}
+          dragMomentum={false}
+          dragDirectionLock
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          style={{ x }}
+          className="group relative z-10 flex items-center gap-0 bg-[#0C0C0C] transition-colors duration-200 active:bg-[#181818]"
+        >
+          <button
+            type="button"
+            onClick={handleToggleClick}
+            className="flex h-10 w-8 shrink-0 items-center justify-left text-white transition"
+            aria-label={expanded ? "Hide trades" : "Show trades"}
+          >
+            <ChevronIndicator direction={expanded ? "down" : "right"} />
+          </button>
 
-        <button
-          type="button"
-          onClick={onSelect}
-          className="flex flex-1 items-center justify-between rounded-2xl py-4 text-left transition focus-visible:outline-none"
-          aria-label={`Open ${wallet.name}`}
-        >
-          <div className="flex items-center gap-3">
-            <span
-              className={`flex h-5 w-5 items-center justify-center rounded-[5px] text-[13px] font-semibold text-white ${badgeClasses}`}
-            >
-              <span className="translate-y-[-1px]">@</span>
-            </span>
-            <span className={`${baseTextClass} text-white`}>{wallet.name}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className={`${baseTextClass} text-white`}>
-              <span className="text-[#A1A1A1]">{walletMoney.sign}</span>
-              {walletMoney.amount}
-            </span>
-            <span className={`${baseTextClass} text-[#A1A1A1]`}>
-              {walletPercent}
-            </span>
-          </div>
-        </button>
+          <button
+            type="button"
+            onClick={handleSelectClick}
+            className="flex flex-1 items-center justify-between rounded-2xl py-4 text-left transition focus-visible:outline-none"
+            aria-label={`Open ${wallet.name}`}
+          >
+            <div className="flex items-center gap-3">
+              <span
+                className={`flex h-5 w-5 items-center justify-center rounded-[5px] text-[13px] font-semibold text-white ${badgeClasses}`}
+              >
+                <span className="translate-y-[-1px]">@</span>
+              </span>
+              <span className={`${baseTextClass} text-white`}>
+                {wallet.name}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className={`${baseTextClass} text-white`}>
+                <span className="text-[#A1A1A1]">{walletMoney.sign}</span>
+                {walletMoney.amount}
+              </span>
+              <span className={`${baseTextClass} text-[#A1A1A1]`}>
+                {walletPercent}
+              </span>
+            </div>
+          </button>
+        </motion.div>
       </div>
 
       {hasTradeEntries && (
         <div className="pl-8">
-        <AnimatedList
-          items={tradeEntries}
-          expanded={expanded}
-          className="mt-2 space-y-0"
-          getKey={(entry) => entry.id}
+          <AnimatedList
+            items={tradeEntries}
+            expanded={expanded}
+            className="mt-2 space-y-0"
+            getKey={(entry) => entry.id}
             renderItem={(entry) => {
               if (entry.kind === "summary") {
                 return (
@@ -543,6 +762,48 @@ function WalletRow({
         </div>
       )}
     </div>
+  );
+}
+
+function WalletRowActionButton({
+  action,
+  index,
+  total,
+  dragDistance,
+  onPress,
+}: {
+  action: WalletSwipeAction;
+  index: number;
+  total: number;
+  dragDistance: MotionValue<number>;
+  onPress: () => void;
+}) {
+  const stepIndex = total - 1 - index;
+  const revealStart = actionRevealOffsetPx * (stepIndex + 1);
+  const revealEnd = revealStart + actionRevealWindowPx;
+
+  const scale = useTransform(dragDistance, (distance) => {
+    if (distance <= revealStart) return actionMinScale;
+    if (distance >= revealEnd) return 1;
+    const progress = (distance - revealStart) / (revealEnd - revealStart);
+    return actionMinScale + progress * (1 - actionMinScale);
+  });
+
+  const opacity = useTransform(dragDistance, (distance) => {
+    if (distance <= revealStart) return 0;
+    if (distance >= revealEnd) return 1;
+    return (distance - revealStart) / (revealEnd - revealStart);
+  });
+
+  return (
+    <motion.button
+      type="button"
+      onClick={onPress}
+      style={{ scale, opacity }}
+      className={`flex items-center justify-center whitespace-nowrap rounded-full p-2 text-[13px] font-semibold tracking-[0.02em] transition-colors duration-200 ${actionToneClasses[action.tone]}`}
+    >
+      {action.label}
+    </motion.button>
   );
 }
 
