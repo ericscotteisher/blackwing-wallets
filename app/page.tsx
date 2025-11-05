@@ -446,11 +446,11 @@ function WalletRow({
 
   return (
     <div>
-      <div className="group flex items-center gap-0 rounded-2xl transition-colors duration-200 hover:bg-[#181818] active:bg-[#181818]/80">
+      <div className="group flex items-center gap-0 transition-colors duration-200 hover:bg-[#181818] active:bg-[#181818]/80">
         <button
           type="button"
           onClick={onToggle}
-          className="flex h-10 w-10 shrink-0 items-center justify-center text-white transition"
+          className="flex h-10 w-8 shrink-0 items-center justify-left text-white transition"
           aria-label={expanded ? "Hide trades" : "Show trades"}
         >
           <ChevronIndicator direction={expanded ? "down" : "right"} />
@@ -464,9 +464,9 @@ function WalletRow({
         >
           <div className="flex items-center gap-3">
             <span
-              className={`flex h-5 w-5 items-center justify-center rounded-[5px] text-[15px] font-semibold text-white ${badgeClasses}`}
+              className={`flex h-5 w-5 items-center justify-center rounded-[5px] text-[13px] font-semibold text-white ${badgeClasses}`}
             >
-              @
+              <span className="translate-y-[-1px]">@</span>
             </span>
             <span className={`${baseTextClass} text-white`}>{wallet.name}</span>
           </div>
@@ -483,7 +483,7 @@ function WalletRow({
       </div>
 
       {hasTradeEntries && (
-        <div className="pl-13">
+        <div className="pl-8">
         <AnimatedList
           items={tradeEntries}
           expanded={expanded}
@@ -504,7 +504,7 @@ function WalletRow({
               const tradeMoney = getMoneyParts(trade.pricePNL);
               const tradePercent = getPercentDisplay(trade.percentPNL);
               return (
-                <div className="group flex items-center justify-between rounded-2xl py-4 transition-colors duration-200 hover:bg-[#181818] active:bg-[#181818]/80">
+                <div className="group flex items-center justify-between py-4 transition-colors duration-200 hover:bg-[#181818] active:bg-[#181818]/80">
                   <div className="flex items-center gap-3">
                     {trade.image ? (
                       <div className="h-5 w-5 overflow-hidden rounded-[5px]">
@@ -947,7 +947,7 @@ function ChevronIndicator({ direction }: { direction: "right" | "down" }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      className={`h-[14px] w-[14px] transform text-white transition-transform duration-200 ${
+      className={`h-[16px] w-[16px] transform text-white transition-transform duration-200 ${
         direction === "down" ? "rotate-90" : ""
       }`}
       fill="none"
