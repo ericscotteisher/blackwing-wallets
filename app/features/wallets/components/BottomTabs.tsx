@@ -25,7 +25,7 @@ type BottomTabsProps = {
 
 export function BottomTabs({ activeTab, onChange }: BottomTabsProps) {
   return (
-    <nav className="absolute bottom-0 left-0 right-0 border-t border-white/10 bg-[#0C0C0C]/95 backdrop-blur">
+    <nav className="sticky bottom-0 left-0 right-0 z-20 border-t border-white/10 bg-[#0C0C0C]/95 backdrop-blur">
       <div className="flex h-16 items-center justify-around px-8">
         {bottomTabs.map((tab) => {
           const isActive = tab.id === activeTab;

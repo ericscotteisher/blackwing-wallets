@@ -61,14 +61,14 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen justify-center bg-[#0C0C0C] font-sans text-white">
-      <div className="relative flex w-full max-w-[600px] flex-col overflow-hidden bg-[#0C0C0C]">
+      <div className="flex min-h-screen w-full max-w-[600px] flex-col bg-[#0C0C0C]">
         <WalletHeader
           activeTab={activeBottomTab}
           selectedWallet={selectedWallet}
           onBack={handleBackToWallets}
         />
 
-        <main className={`flex-1 overflow-y-auto px-6 pb-28 ${baseTextClass} text-white`}>
+        <main className={`flex-1 overflow-y-auto px-6 pb-8 ${baseTextClass} text-white`}>
           {showWalletTab ? (
             selectedWallet ? (
               <div className="flex h-full items-center justify-center text-white">

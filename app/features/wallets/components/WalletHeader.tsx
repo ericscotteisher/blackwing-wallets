@@ -51,7 +51,7 @@ export function WalletHeader({ activeTab, selectedWallet, onBack }: WalletHeader
   };
 
   return (
-    <header className="flex h-16 items-center justify-between px-6">
+    <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-white/10 bg-[#0C0C0C] px-6">
       {renderContent()}
       {activeTab === "Wallets" && !selectedWallet ? (
         <button
