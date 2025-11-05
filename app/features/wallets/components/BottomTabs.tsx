@@ -1,5 +1,7 @@
 "use client";
 
+import type { JSX } from "react";
+
 export type BottomTabId = "Wallets" | "Discover" | "Sugar";
 
 type BottomTab = {
@@ -115,7 +117,7 @@ function DiscoverIcon({ active }: { active: boolean }) {
         strokeWidth="2"
       />
       <circle cx="25.4987" cy="17.7778" r="1.66667" fill="white" />
-      <mask id="discoverMask" maskUnits="userSpaceOnUse" x="3" y="3" width="22" height="9" maskType="alpha">
+      <mask id="discoverMask" maskUnits="userSpaceOnUse" x="3" y="3" width="22" height="9">
         <rect x="3.83203" y="3.88889" width="21.1111" height="7.77778" fill="#D9D9D9" />
       </mask>
       <g mask="url(#discoverMask)">
