@@ -99,6 +99,7 @@ export default function Home() {
   const [selectedWallet, setSelectedWallet] = useState<WalletView | null>(null);
   const [discoverSort, setDiscoverSort] = useState<DiscoverSort>("recent");
   const [isDiscoverSheetOpen, setIsDiscoverSheetOpen] = useState(false);
+  const [isAddWalletOpen, setIsAddWalletOpen] = useState(false);
 
   const handleToggleWallet = (walletId: string) => {
     setExpandedWallets((prev) => ({
@@ -193,6 +194,7 @@ export default function Home() {
                 onWalletFilterChange={handleWalletFilterChange}
                 discoverSort={discoverSort}
                 onDiscoverEllipsis={() => setIsDiscoverSheetOpen(true)}
+                onWatchingPlus={() => setIsAddWalletOpen(true)}
               />
             )
           ) : (
@@ -220,6 +222,7 @@ export default function Home() {
           }}
           onClose={() => setIsDiscoverSheetOpen(false)}
         />
+        <AddWalletModal open={isAddWalletOpen} onClose={() => setIsAddWalletOpen(false)} />
       </div>
     </div>
   );
@@ -234,6 +237,7 @@ function WalletFeed({
   onWalletFilterChange,
   discoverSort,
   onDiscoverEllipsis,
+  onWatchingPlus,
 }: {
   wallets: WalletView[];
   walletFilter: WalletFilter;
@@ -243,6 +247,7 @@ function WalletFeed({
   onWalletFilterChange: (filter: WalletFilter) => void;
   discoverSort: DiscoverSort;
   onDiscoverEllipsis: () => void;
+  onWatchingPlus: () => void;
 }) {
   const [sectionExpansion, setSectionExpansion] = useState<Record<string, boolean>>(
     {},
@@ -368,14 +373,17 @@ function WalletFeed({
                     </span>
                     <SectionCaret open={isExpanded} />
                   </button>
-                  <SectionActions
-                    sectionId={section.id}
-                    onEllipsis={
-                      section.id === "discover"
-                        ? onDiscoverEllipsis
-                        : undefined
-                    }
-                  />
+                <SectionActions
+                  sectionId={section.id}
+                  onEllipsis={
+                    section.id === "discover"
+                      ? onDiscoverEllipsis
+                      : undefined
+                  }
+                  onPlus={
+                    section.id === "watching" ? onWatchingPlus : undefined
+                  }
+                />
                 </div>
 
                 <AnimatedList
@@ -679,9 +687,11 @@ function AnimatedList<T>({
 function SectionActions({
   sectionId,
   onEllipsis,
+  onPlus,
 }: {
   sectionId: string;
   onEllipsis?: () => void;
+  onPlus?: () => void;
 }) {
   if (sectionId === "auto-trade") {
     return (
@@ -696,7 +706,7 @@ function SectionActions({
     return (
       <div className="flex items-center gap-3 text-[15px] text-[#848484]">
         <EllipsisButton onClick={onEllipsis} />
-        <PlusIcon />
+        <PlusButton onClick={onPlus} />
       </div>
     );
   }
@@ -716,6 +726,18 @@ function EllipsisButton({ onClick }: { onClick?: () => void }) {
       className={`flex items-center text-inherit ${onClick ? "" : "cursor-default"}`}
     >
       <EllipsisIcon />
+    </button>
+  );
+}
+
+function PlusButton({ onClick }: { onClick?: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex items-center text-inherit"
+    >
+      <PlusIcon />
     </button>
   );
 }
@@ -779,6 +801,29 @@ function DiscoverSortSheet({
         >
           Close
         </button>
+      </div>
+    </div>
+  );
+}
+
+function AddWalletModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+      <button
+        type="button"
+        onClick={onClose}
+        className="absolute inset-0 h-full w-full"
+        aria-label="Close add wallet modal"
+      />
+      <div className="relative z-10 w-[280px] rounded-3xl bg-[#121214] p-6 text-center shadow-lg shadow-black/50">
+        <h2 className="text-[17px] font-semibold tracking-[0.02em] text-white">
+          Add a wallet
+        </h2>
+        <p className="mt-2 text-[14px] tracking-[0.02em] text-[#A1A1A1]">
+          Will build this later
+        </p>
       </div>
     </div>
   );
