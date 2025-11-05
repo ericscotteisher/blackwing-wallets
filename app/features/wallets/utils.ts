@@ -1,5 +1,6 @@
 import {
   tokenRecords,
+  type Timeframe,
   type TokenRecord,
   type WalletRecord,
 } from "../../data";
@@ -51,10 +52,13 @@ export function getTradesForWallet(wallet: WalletRecord, index: number): TokenRe
   return trades;
 }
 
-export function getTradeSummary(trades: TokenRecord[]): TradeSummaryInfo | null {
+export function getTradeSummary(
+  trades: TokenRecord[],
+  timeframe: Timeframe,
+): TradeSummaryInfo | null {
   if (trades.length === 0) return null;
 
-  const wins = trades.filter((trade) => trade.pricePNL >= 0).length;
+  const wins = trades.filter((trade) => trade.pnl[timeframe].money >= 0).length;
   const winRate = Math.round((wins / trades.length) * 100);
 
   return {

@@ -7,6 +7,7 @@ import {
   baseTextClass,
   type DiscoverSort,
   type WalletFilter,
+  type Timeframe,
   type WalletView,
 } from "./features/wallets/constants";
 import { getTradesForWallet } from "./features/wallets/utils";
@@ -33,6 +34,8 @@ export default function Home() {
     Record<string, boolean>
   >({});
   const [selectedWallet, setSelectedWallet] = useState<WalletView | null>(null);
+  const [selectedTimeframe, setSelectedTimeframe] =
+    useState<Timeframe>("1d");
   const [discoverSort, setDiscoverSort] = useState<DiscoverSort>("recent");
   const [isDiscoverSheetOpen, setIsDiscoverSheetOpen] = useState(false);
   const [isAddWalletOpen, setIsAddWalletOpen] = useState(false);
@@ -65,6 +68,8 @@ export default function Home() {
         <WalletHeader
           activeTab={activeBottomTab}
           selectedWallet={selectedWallet}
+          selectedTimeframe={selectedTimeframe}
+          onTimeframeChange={setSelectedTimeframe}
           onBack={handleBackToWallets}
         />
 
@@ -79,6 +84,7 @@ export default function Home() {
                 wallets={walletViews}
                 walletFilter={walletFilter}
                 expandedWallets={expandedWallets}
+                timeframe={selectedTimeframe}
                 onToggleWallet={handleToggleWallet}
                 onWalletSelect={handleWalletSelect}
                 onWalletFilterChange={handleWalletFilterChange}

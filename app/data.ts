@@ -1,10 +1,17 @@
 export type WalletStatus = "KOL" | "Whale" | "Alpha" | "Watching" | "Trading";
 
+export const timeframes = ["1d", "7d", "30d", "1yr"] as const;
+export type Timeframe = (typeof timeframes)[number];
+
+export type TimeframePNL = {
+  money: number;
+  percent: number;
+};
+
 export type WalletRecord = {
   id: string;
   name: string;
-  moneyPNL: number;
-  percentPNL: number;
+  pnl: Record<Timeframe, TimeframePNL>;
   status: WalletStatus;
   addedAt: string;
 };
@@ -14,11 +21,72 @@ export type TokenStatus = "open" | "closed";
 export type TokenRecord = {
   id: string;
   name: string;
-  pricePNL: number;
-  percentPNL: number;
+  pnl: Record<Timeframe, TimeframePNL>;
   status: TokenStatus;
   image?: string | null;
 };
+
+function createRng(seed: number) {
+  let value = seed >>> 0;
+  return () => {
+    value = (value * 1664525 + 1013904223) >>> 0;
+    return value / 4294967296;
+  };
+}
+
+function computeSeed(source: string, index: number, salt: number) {
+  const base = source
+    .split("")
+    .reduce((total, char, i) => total + char.charCodeAt(0) * (i + 11), 0);
+  return (base ^ (index * 131 + salt * 997)) >>> 0;
+}
+
+const timeframeMoneyRanges: Record<Timeframe, number> = {
+  "1d": 32000,
+  "7d": 64000,
+  "30d": 120000,
+  "1yr": 240000,
+};
+
+const timeframePercentRanges: Record<Timeframe, number> = {
+  "1d": 120,
+  "7d": 220,
+  "30d": 360,
+  "1yr": 520,
+};
+
+function buildPnL(
+  name: string,
+  index: number,
+  scale: number,
+  salt: number,
+): Record<Timeframe, TimeframePNL> {
+  const rng = createRng(computeSeed(name, index, salt));
+  return timeframes.reduce<Record<Timeframe, TimeframePNL>>(
+    (acc, timeframe, timeframeIndex) => {
+      const moneySpan = Math.max(
+        4000,
+        Math.round(timeframeMoneyRanges[timeframe] * scale),
+      );
+      const percentSpan = Math.round(
+        timeframePercentRanges[timeframe] * (1 + timeframeIndex * 0.12),
+      );
+
+      const centeredMoney = (rng() - 0.5) * moneySpan;
+      const moneyJitter = (rng() - 0.5) * moneySpan * 0.35;
+      const centeredPercent = (rng() - 0.5) * percentSpan;
+      const percentJitter = (rng() - 0.5) * Math.max(6, percentSpan * 0.25);
+
+      acc[timeframe] = {
+        money: Math.round(centeredMoney + moneyJitter),
+        percent: Math.round(centeredPercent + percentJitter),
+      };
+
+      return acc;
+    },
+    {} as Record<Timeframe, TimeframePNL>,
+  );
+}
 
 const fiveDigitWallets = [
   "a6b1p",
@@ -154,30 +222,14 @@ function deriveWalletStatus(index: number): WalletStatus {
   return discoverStatuses[discoverIndex % discoverStatuses.length];
 }
 
-function derivePNL(name: string, index: number) {
-  const code = name
-    .split("")
-    .reduce((total, char, i) => total + char.charCodeAt(0) * (i + 1), 0);
-  const moneyRange = 32_000 + 120;
-  const rawMoney = (code * (index + 3)) % moneyRange;
-  const moneyPNL = Math.round(rawMoney) - 120;
-
-  const percentRange = 130; // -10 to 120
-  const rawPercent = (code + index * 37) % percentRange;
-  const percentPNL = Math.round(rawPercent) - 10;
-
-  return { moneyPNL, percentPNL };
-}
-
 export const walletRecords: WalletRecord[] = allWalletNames.map(
   (name, index) => {
-    const { moneyPNL, percentPNL } = derivePNL(name, index);
+    const pnl = buildPnL(name, index, 1, 0x1234);
     const status = deriveWalletStatus(index);
     return {
       id: `${name}-${index}`,
       name,
-      moneyPNL,
-      percentPNL,
+      pnl,
       status,
       addedAt: deriveTimestamp(index),
     };
@@ -209,23 +261,13 @@ const tokenDefinitions = [
 
 export const tokenRecords: TokenRecord[] = tokenDefinitions.map(
   (name, index) => {
-    const code = name
-      .split("")
-      .reduce((total, char, i) => total + char.charCodeAt(0) * (i + 3), 0);
-    const magnitude = (code % 120_000) + 2_500;
-    const sign = (index + code) % 6 < 2 ? -1 : 1;
-    const pricePNL = sign * Math.round(magnitude / 3);
-    const percentPNL =
-      sign *
-      Math.round(((code % 1_800) / 10 < 5 ? (code % 1_800) / 10 + 18 : (code % 1_800) / 10));
-
+    const pnl = buildPnL(name, index, 0.4, 0x9f);
     const status: TokenStatus = index < 8 ? "open" : "closed";
 
     return {
       id: `${name.toLowerCase().replace(/\s+/g, "-")}-${index}`,
       name,
-      pricePNL,
-      percentPNL,
+      pnl,
       status,
       image: null,
     };

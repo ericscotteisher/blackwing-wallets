@@ -18,6 +18,7 @@ import {
   type TradeListEntry,
   type WalletSectionId,
   type WalletSwipeAction,
+  type Timeframe,
   type WalletView,
 } from "../constants";
 import {
@@ -34,6 +35,7 @@ type WalletRowProps = {
   sectionId: WalletSectionId;
   wallet: WalletView;
   expanded: boolean;
+  timeframe: Timeframe;
   onToggle: () => void;
   onSelect: () => void;
 };
@@ -42,14 +44,15 @@ export function WalletRow({
   sectionId,
   wallet,
   expanded,
+  timeframe,
   onToggle,
   onSelect,
 }: WalletRowProps) {
   const actions = walletSwipeActions[sectionId] ?? [];
   const badgeClasses = getBadgeClasses(wallet.name);
-  const summary = getTradeSummary(wallet.trades);
-  const walletMoney = getMoneyParts(wallet.moneyPNL);
-  const walletPercent = getPercentDisplay(wallet.percentPNL);
+  const summary = getTradeSummary(wallet.trades, timeframe);
+  const walletMoney = getMoneyParts(wallet.pnl[timeframe].money);
+  const walletPercent = getPercentDisplay(wallet.pnl[timeframe].percent);
   const tradeEntries = useMemo(() => {
     const entries: TradeListEntry[] = [];
     if (summary) {
@@ -299,8 +302,8 @@ export function WalletRow({
                 );
               }
               const trade = entry.trade;
-              const tradeMoney = getMoneyParts(trade.pricePNL);
-              const tradePercent = getPercentDisplay(trade.percentPNL);
+              const tradeMoney = getMoneyParts(trade.pnl[timeframe].money);
+              const tradePercent = getPercentDisplay(trade.pnl[timeframe].percent);
               return (
                 <div className="group flex items-center justify-between py-4 transition-colors duration-200 active:bg-[#181818]/80">
                   <div className="flex items-center gap-3">

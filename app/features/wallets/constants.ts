@@ -1,4 +1,6 @@
+import { timeframes } from "../../data";
 import type {
+  Timeframe,
   TokenRecord,
   WalletRecord,
   WalletStatus,
@@ -35,6 +37,9 @@ export type WalletSwipeAction = {
   label: string;
   tone: "default" | "positive" | "negative";
 };
+
+export { timeframes };
+export type { Timeframe };
 
 export const discoverStatuses: WalletStatus[] = ["KOL", "Whale", "Alpha"];
 

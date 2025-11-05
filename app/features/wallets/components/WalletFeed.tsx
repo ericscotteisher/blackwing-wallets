@@ -9,6 +9,7 @@ import {
   type DiscoverSort,
   type Section,
   type WalletFilter,
+  type Timeframe,
   type WalletView,
 } from "../constants";
 import { AnimatedList } from "./AnimatedList";
@@ -19,6 +20,7 @@ type WalletFeedProps = {
   wallets: WalletView[];
   walletFilter: WalletFilter;
   expandedWallets: Record<string, boolean>;
+  timeframe: Timeframe;
   onToggleWallet: (walletId: string) => void;
   onWalletSelect: (wallet: WalletView) => void;
   onWalletFilterChange: (filter: WalletFilter) => void;
@@ -31,6 +33,7 @@ export function WalletFeed({
   wallets,
   walletFilter,
   expandedWallets,
+  timeframe,
   onToggleWallet,
   onWalletSelect,
   onWalletFilterChange,
@@ -89,13 +92,15 @@ export function WalletFeed({
             new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime()
           );
         }
-        return b.moneyPNL - a.moneyPNL;
+        return (
+          b.pnl[timeframe].money - a.pnl[timeframe].money
+        );
       });
       result.push({ id: "discover", name: "Discover", wallets: sorted });
     }
 
     return result;
-  }, [filteredWallets, discoverSort]);
+  }, [filteredWallets, discoverSort, timeframe]);
 
   const handleSectionToggle = (sectionId: string) => {
     setSectionExpansion((prev) => {
@@ -171,6 +176,7 @@ export function WalletFeed({
                       sectionId={section.id}
                       wallet={wallet}
                       expanded={Boolean(expandedWallets[wallet.id])}
+                      timeframe={timeframe}
                       onToggle={() => onToggleWallet(wallet.id)}
                       onSelect={() => onWalletSelect(wallet)}
                     />
