@@ -158,13 +158,13 @@ function derivePNL(name: string, index: number) {
   const code = name
     .split("")
     .reduce((total, char, i) => total + char.charCodeAt(0) * (i + 1), 0);
-  const magnitude = (code % 250_000) + 5_000;
-  const sign = (code + index) % 5 === 0 ? -1 : 1;
+  const moneyRange = 32_000 + 120;
+  const rawMoney = (code * (index + 3)) % moneyRange;
+  const moneyPNL = Math.round(rawMoney) - 120;
 
-  const moneyPNL = sign * Math.round(magnitude / 2);
-  const percentBase = (code % 2_500) / 10;
-  const percentPNL =
-    sign * Math.round((percentBase < 5 ? percentBase + 25 : percentBase));
+  const percentRange = 130; // -10 to 120
+  const rawPercent = (code + index * 37) % percentRange;
+  const percentPNL = Math.round(rawPercent) - 10;
 
   return { moneyPNL, percentPNL };
 }

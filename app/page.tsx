@@ -154,14 +154,14 @@ export default function Home() {
         <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-violet-600 text-white">
           <WalletGlyph />
         </div>
-        <span className={`${baseTextClass} text-white`}>Wallets</span>
+        <span className={`text-[24px] text-white`}>Wallets</span>
       </div>
     );
   };
 
   return (
-    <div className="flex min-h-screen justify-center bg-neutral-950 font-sans text-white">
-      <div className="relative flex w-full max-w-[600px] flex-col overflow-hidden bg-neutral-950">
+    <div className="flex min-h-screen justify-center bg-[#0C0C0C] font-sans text-white">
+      <div className="relative flex w-full max-w-[600px] flex-col overflow-hidden bg-[#0C0C0C]">
         <header className="flex h-16 items-center justify-between px-6">
           {renderNav()}
           {activeBottomTab === "Wallets" && !selectedWallet ? (
@@ -315,8 +315,8 @@ function WalletFeed({
 
   return (
     <div className={`${baseTextClass} pb-8 text-white`}>
-      <div className="-mx-6 mb-8 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none]">
-        <div className="flex w-max gap-1 px-6 [&::-webkit-scrollbar]:hidden">
+      <div className="-mx-6 mt-6 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none]">
+        <div className="flex w-max gap-1.5 px-6 [&::-webkit-scrollbar]:hidden">
           {walletFilterTabs.map((tab) => {
             const isActive = tab === walletFilter;
             return (
@@ -349,14 +349,14 @@ function WalletFeed({
             const spacingClass = isLast
               ? ""
               : isExpanded
-                ? "mb-10"
+                ? "mb-6"
                 : "mb-6";
             return (
               <section
                 key={section.id}
-                className={`space-y-7 ${spacingClass}`.trim()}
+                className={spacingClass}
               >
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mb-2">
                   <button
                     type="button"
                     onClick={() => handleSectionToggle(section.id)}
@@ -381,7 +381,7 @@ function WalletFeed({
                 <AnimatedList
                   items={section.wallets}
                   expanded={isExpanded}
-                  className="space-y-7"
+                  className="space-y-0"
                   renderItem={(wallet) => (
                     <WalletRow
                       wallet={wallet}
@@ -438,11 +438,11 @@ function WalletRow({
 
   return (
     <div>
-      <div className="flex items-center gap-3">
+      <div className="group flex items-center gap-3 rounded-2xl transition-colors duration-200 hover:bg-[#181818] active:bg-[#181818]/80">
         <button
           type="button"
           onClick={onToggle}
-          className="flex h-5 w-5 shrink-0 items-center justify-start text-white transition hover:text-white"
+          className="flex h-10 w-10 shrink-0 items-center justify-center text-white transition"
           aria-label={expanded ? "Hide trades" : "Show trades"}
         >
           <ChevronIndicator direction={expanded ? "down" : "right"} />
@@ -451,7 +451,7 @@ function WalletRow({
         <button
           type="button"
           onClick={onSelect}
-          className="flex flex-1 items-center justify-between rounded-xl px-0 text-left transition focus-visible:outline-none"
+          className="flex flex-1 items-center justify-between rounded-2xl px-3 py-4 text-left transition focus-visible:outline-none"
           aria-label={`Open ${wallet.name}`}
         >
           <div className="flex items-center gap-3">
@@ -462,7 +462,7 @@ function WalletRow({
             </span>
             <span className={`${baseTextClass} text-white`}>{wallet.name}</span>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <span className={`${baseTextClass} text-white`}>
               <span className="text-[#A1A1A1]">{walletMoney.sign}</span>
               {walletMoney.amount}
@@ -475,17 +475,17 @@ function WalletRow({
       </div>
 
       {hasTradeEntries && (
-        <div className="pl-8">
-          <AnimatedList
-            items={tradeEntries}
-            expanded={expanded}
-            className="mt-6 space-y-7"
-            getKey={(entry) => entry.id}
+        <div className="pl-13">
+        <AnimatedList
+          items={tradeEntries}
+          expanded={expanded}
+          className="mt-2 space-y-0"
+          getKey={(entry) => entry.id}
             renderItem={(entry) => {
               if (entry.kind === "summary") {
                 return (
                   <div
-                    className={`flex items-center justify-between ${baseTextClass} text-[#464B55]`}
+                    className={`flex items-center mb-2 px-3 justify-between ${baseTextClass} text-[#464B55]`}
                   >
                     <span>{entry.summary.tradesLabel}</span>
                     <span>{entry.summary.winRateLabel}</span>
@@ -496,7 +496,7 @@ function WalletRow({
               const tradeMoney = getMoneyParts(trade.pricePNL);
               const tradePercent = getPercentDisplay(trade.percentPNL);
               return (
-                <div className="flex items-center justify-between">
+                <div className="group flex items-center justify-between rounded-2xl px-3 py-4 transition-colors duration-200 hover:bg-[#181818] active:bg-[#181818]/80">
                   <div className="flex items-center gap-3">
                     {trade.image ? (
                       <div className="h-5 w-5 overflow-hidden rounded-[5px]">
@@ -519,7 +519,7 @@ function WalletRow({
                       {trade.name}
                     </span>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <span className={`${baseTextClass} text-white`}>
                       <span className="text-[#A1A1A1]">{tradeMoney.sign}</span>
                       {tradeMoney.amount}
@@ -546,7 +546,7 @@ function BottomTabs({
   onChange: (tab: BottomTabId) => void;
 }) {
   return (
-    <nav className="absolute bottom-0 left-0 right-0 border-t border-white/10 bg-neutral-950/95 backdrop-blur">
+    <nav className="absolute bottom-0 left-0 right-0 border-t border-white/10 bg-[#0C0C0C]/95 backdrop-blur">
       <div className="flex h-16 items-center justify-around px-8">
         {bottomTabs.map((tab) => {
           const isActive = tab.id === activeTab;
