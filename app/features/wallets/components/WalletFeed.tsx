@@ -121,7 +121,7 @@ export function WalletFeed({
                 className={`h-9 rounded-[10px] border px-4 font-semibold tracking-[0.02em] transition ${
                   isActive
                     ? "border-transparent bg-white text-black"
-                    : "border-[#181818] bg-transparent text-white hover:border-white/20"
+                    : "border-[#181818] bg-transparent text-white hover:bg-[#181818]"
                 }`}
               >
                 {tab}
