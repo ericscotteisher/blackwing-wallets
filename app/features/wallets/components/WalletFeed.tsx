@@ -72,11 +72,9 @@ export function WalletFeed({
       result.push({ id: "watching", name: "Watching", wallets: watching });
     }
 
-    const discover = filteredWallets.filter((wallet) =>
-      discoverStatuses.includes(wallet.status),
-    );
-    if (discover.length > 0) {
-      const sorted = [...discover].sort((a, b) => {
+    const kols = filteredWallets.filter((wallet) => wallet.status === "KOL");
+    if (kols.length > 0) {
+      const sorted = [...kols].sort((a, b) => {
         if (discoverSort === "recent") {
           return (
             new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime()
@@ -86,7 +84,37 @@ export function WalletFeed({
           b.pnl[timeframe].money - a.pnl[timeframe].money
         );
       });
-      result.push({ id: "discover", name: "Discover", wallets: sorted });
+      result.push({ id: "kols", name: "KOLs", wallets: sorted });
+    }
+
+    const whales = filteredWallets.filter((wallet) => wallet.status === "Whale");
+    if (whales.length > 0) {
+      const sorted = [...whales].sort((a, b) => {
+        if (discoverSort === "recent") {
+          return (
+            new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime()
+          );
+        }
+        return (
+          b.pnl[timeframe].money - a.pnl[timeframe].money
+        );
+      });
+      result.push({ id: "whales", name: "Whales", wallets: sorted });
+    }
+
+    const alpha = filteredWallets.filter((wallet) => wallet.status === "Alpha");
+    if (alpha.length > 0) {
+      const sorted = [...alpha].sort((a, b) => {
+        if (discoverSort === "recent") {
+          return (
+            new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime()
+          );
+        }
+        return (
+          b.pnl[timeframe].money - a.pnl[timeframe].money
+        );
+      });
+      result.push({ id: "alpha", name: "Alpha", wallets: sorted });
     }
 
     return result;
@@ -152,7 +180,7 @@ export function WalletFeed({
                   </button>
                   <SectionActions
                     sectionId={section.id}
-                    onEllipsis={section.id === "discover" ? onDiscoverEllipsis : undefined}
+                    onEllipsis={["kols", "whales", "alpha"].includes(section.id) ? onDiscoverEllipsis : undefined}
                     onPlus={section.id === "watching" ? onWatchingPlus : undefined}
                   />
                 </div>
