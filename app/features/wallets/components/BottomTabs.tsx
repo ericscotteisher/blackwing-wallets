@@ -1,21 +1,17 @@
 "use client";
 
-import type { ReactNode } from "react";
-
-import { baseTextClass } from "../constants";
-
-export type BottomTabId = "Wallets" | "Home" | "Sugar";
+export type BottomTabId = "Wallets" | "Discover" | "Sugar";
 
 type BottomTab = {
   id: BottomTabId;
-  label: string;
-  icon: (props: { active: boolean }) => ReactNode;
+  icon: (props: { active: boolean }) => JSX.Element;
+  ariaLabel: string;
 };
 
 const bottomTabs: BottomTab[] = [
-  { id: "Wallets", label: "Wallets", icon: WalletTabIcon },
-  { id: "Home", label: "Home", icon: HomeTabIcon },
-  { id: "Sugar", label: "Sugar", icon: SugarTabIcon },
+  { id: "Wallets", icon: DaddyIcon, ariaLabel: "Wallets" },
+  { id: "Discover", icon: DiscoverIcon, ariaLabel: "Discover" },
+  { id: "Sugar", icon: SugarIcon, ariaLabel: "Sugar" },
 ];
 
 type BottomTabsProps = {
@@ -34,16 +30,10 @@ export function BottomTabs({ activeTab, onChange }: BottomTabsProps) {
               key={tab.id}
               type="button"
               onClick={() => onChange(tab.id)}
-              className="flex flex-col items-center gap-1"
+              className="flex items-center justify-center"
+              aria-label={tab.ariaLabel}
             >
               <tab.icon active={isActive} />
-              <span
-                className={`${baseTextClass} ${
-                  isActive ? "text-white" : "text-[#A1A1A1]"
-                }`}
-              >
-                {tab.label}
-              </span>
             </button>
           );
         })}
@@ -52,48 +42,108 @@ export function BottomTabs({ activeTab, onChange }: BottomTabsProps) {
   );
 }
 
-function WalletTabIcon({ active }: { active: boolean }) {
+function DaddyIcon({ active }: { active: boolean }) {
   return (
     <svg
-      viewBox="0 0 24 24"
-      className={`h-6 w-6 ${active ? "text-violet-400" : "text-zinc-500"}`}
-      fill="currentColor"
+      width="39"
+      height="35"
+      viewBox="0 0 39 35"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={active ? "opacity-100" : "opacity-60"}
     >
-      <path d="M4 6.75A2.75 2.75 0 0 1 6.75 4h10.5A2.75 2.75 0 0 1 20 6.75v10.5A2.75 2.75 0 0 1 17.25 20H6.75A2.75 2.75 0 0 1 4 17.25zm2.75-.25a.75.75 0 0 0-.75.75v9.5c0 .414.336.75.75.75h10.5a.75.75 0 0 0 .75-.75v-2.25h-3a2.75 2.75 0 0 1-2.75-2.75A2.75 2.75 0 0 1 14.25 9h3V7.25a.75.75 0 0 0-.75-.75zM17.25 10.5h-3a1.25 1.25 0 1 0 0 2.5h3z" />
+      <path
+        d="M29 11.25C29 12.9069 27.6569 14.25 26 14.25C24.3431 14.25 23 12.9069 23 11.25"
+        stroke="white"
+        strokeWidth="2"
+      />
+      <path
+        opacity="0.5"
+        d="M29 11.25C29 9.59315 27.6569 8.25 26 8.25C24.3431 8.25 23 9.59315 23 11.25"
+        stroke="white"
+        strokeWidth="2"
+      />
+      <path
+        d="M16 11.25C16 12.9069 14.6569 14.25 13 14.25C11.3431 14.25 10 12.9069 10 11.25"
+        stroke="white"
+        strokeWidth="2"
+      />
+      <path
+        opacity="0.5"
+        d="M16 11.25C16 9.59315 14.6569 8.25 13 8.25C11.3431 8.25 10 9.59315 10 11.25"
+        stroke="white"
+        strokeWidth="2"
+      />
+      <rect
+        x="10"
+        y="20.25"
+        width="19"
+        height="6"
+        rx="3"
+        stroke="white"
+        strokeWidth="2"
+      />
+      <path
+        opacity="0.5"
+        d="M23 19.25V23.25"
+        stroke="white"
+        strokeWidth="5"
+      />
+      <path
+        opacity="0.5"
+        d="M16 19.25V23.25"
+        stroke="white"
+        strokeWidth="5"
+      />
     </svg>
   );
 }
 
-function HomeTabIcon({ active }: { active: boolean }) {
+function DiscoverIcon({ active }: { active: boolean }) {
   return (
     <svg
-      viewBox="0 0 24 24"
-      className={`h-6 w-6 ${active ? "text-zinc-100" : "text-zinc-500"}`}
+      width="32"
+      height="32"
+      viewBox="0 0 32 32"
       fill="none"
-      stroke="currentColor"
-      strokeWidth={1.6}
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+      className={active ? "opacity-100" : "opacity-60"}
     >
-      <path d="M3 11.5L12 4l9 7.5" />
-      <path d="M5.5 10v9h5v-5h3v5h5v-9" />
+      <path
+        d="M4.94531 25H27.1675V21.6667H21.612V13.8889H27.1675V9.44444H4.94531V25Z"
+        stroke="white"
+        strokeWidth="2"
+      />
+      <circle cx="25.4987" cy="17.7778" r="1.66667" fill="white" />
+      <mask id="discoverMask" maskUnits="userSpaceOnUse" x="3" y="3" width="22" height="9" maskType="alpha">
+        <rect x="3.83203" y="3.88889" width="21.1111" height="7.77778" fill="#D9D9D9" />
+      </mask>
+      <g mask="url(#discoverMask)">
+        <path
+          d="M22.7209 9.44444V7.80579C22.7209 6.37279 21.3846 5.31442 19.9897 5.64263L3.83203 9.44444"
+          stroke="white"
+          strokeWidth="2.22222"
+        />
+      </g>
     </svg>
   );
 }
 
-function SugarTabIcon({ active }: { active: boolean }) {
+function SugarIcon({ active }: { active: boolean }) {
   return (
     <svg
-      viewBox="0 0 24 24"
-      className={`h-6 w-6 ${active ? "text-pink-400" : "text-zinc-500"}`}
+      width="32"
+      height="32"
+      viewBox="0 0 32 32"
       fill="none"
-      stroke="currentColor"
-      strokeWidth={1.6}
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+      className={active ? "opacity-100" : "opacity-60"}
     >
-      <path d="M12 4c1.7-2.667 6-2.667 7.7 0 1.7 2.667.75 6.4-3.7 9.2l-4 2.5-4-2.5C3.55 10.4 2.6 6.667 4.3 4 6 1.333 10.3 1.333 12 4z" />
-      <path d="M7 13l5 7 5-7" />
+      <path d="M26 24H6" stroke="white" strokeWidth="2" />
+      <rect x="21" y="12" width="3" height="3" fill="white" />
+      <rect x="12" y="10" width="3" height="3" fill="white" />
+      <rect x="18" y="6" width="3" height="3" fill="white" />
+      <path d="M6 17L26 20" stroke="white" strokeWidth="2" />
     </svg>
   );
 }

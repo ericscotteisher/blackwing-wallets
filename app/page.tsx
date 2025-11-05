@@ -89,7 +89,7 @@ export default function Home() {
             )
           ) : (
             <div className="flex h-full items-center justify-center text-white">
-              {activeBottomTab === "Home" ? "Home" : "Sugar"}
+              {activeBottomTab === "Discover" ? "Discover" : "Sugar"}
             </div>
           )}
         </main>
