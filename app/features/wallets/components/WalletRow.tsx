@@ -261,11 +261,30 @@ export function WalletRow({
             aria-label={`Open ${wallet.name}`}
           >
             <div className="flex items-center gap-3">
-              <span
-                className={`flex h-5 w-5 items-center justify-center rounded-[5px] text-[13px] font-semibold text-white ${badgeClasses}`}
-              >
-                <span className="translate-y-[-1px]">@</span>
-              </span>
+              {sectionId === "auto-trade" ? (
+                <div className="flex items-center gap-1">
+                  <div className="h-5 w-5 overflow-hidden rounded-[5px]">
+                    <Image
+                      src="/wallet-icons/daddy-watching.png"
+                      alt="wallet"
+                      width={20}
+                      height={20}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  <span
+                    className={`flex h-5 w-5 items-center justify-center rounded-[5px] text-[13px] font-semibold text-white ${badgeClasses}`}
+                  >
+                    <span className="translate-y-[-1px]">@</span>
+                  </span>
+                </div>
+              ) : (
+                <span
+                  className={`flex h-5 w-5 items-center justify-center rounded-[5px] text-[13px] font-semibold text-white ${badgeClasses}`}
+                >
+                  <span className="translate-y-[-1px]">@</span>
+                </span>
+              )}
               <span className={`${baseTextClass} text-white`}>
                 {wallet.name}
               </span>
