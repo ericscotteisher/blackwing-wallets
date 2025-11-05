@@ -800,7 +800,7 @@ function WalletRowActionButton({
       type="button"
       onClick={onPress}
       style={{ scale, opacity }}
-      className={`flex items-center justify-center whitespace-nowrap rounded-full p-2 text-[13px] font-semibold tracking-[0.02em] transition-colors duration-200 ${actionToneClasses[action.tone]}`}
+      className={`flex items-center justify-center whitespace-nowrap rounded-full px-3 py-2 text-[13px] font-semibold tracking-[0.02em] transition-colors duration-200 ${actionToneClasses[action.tone]}`}
     >
       {action.label}
     </motion.button>
