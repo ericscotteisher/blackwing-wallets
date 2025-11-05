@@ -263,13 +263,13 @@ export function WalletRow({
             <div className="flex items-center gap-3">
               {sectionId === "watching" && ["Cruelghoul", "Minko", "Babydoll"].includes(wallet.name) ? (
                 <div className="flex items-center gap-1">
-                  <div className="h-5 w-5 overflow-hidden rounded-[5px]">
+                  <div className="h-5 w-5">
                     <Image
                       src="/wallet-icons/daddy-watching.png"
                       alt="wallet"
                       width={20}
                       height={20}
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-contain"
                     />
                   </div>
                   <span
