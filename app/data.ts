@@ -191,8 +191,8 @@ const specialWallets = ["Cruelghoul", "Minko", "Babydoll", "Kingpin"];
 
 const allWalletNames = [...specialWallets, ...fiveDigitWallets];
 
-const tradingIndexes = new Set([0, 1, 2]);
-const watchingIndexes = new Set([3, 4, 5, 6, 7]);
+const tradingIndexes = new Set<number>([]);
+const watchingIndexes = new Set([0, 1, 2, 3, 4, 5, 6, 7]);
 
 const startDate = new Date("2025-11-01T00:00:00Z").getTime();
 const endDate = new Date("2025-11-05T23:59:59Z").getTime();

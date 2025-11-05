@@ -261,7 +261,7 @@ export function WalletRow({
             aria-label={`Open ${wallet.name}`}
           >
             <div className="flex items-center gap-3">
-              {sectionId === "auto-trade" ? (
+              {sectionId === "watching" && ["Cruelghoul", "Minko", "Babydoll"].includes(wallet.name) ? (
                 <div className="flex items-center gap-1">
                   <div className="h-5 w-5 overflow-hidden rounded-[5px]">
                     <Image

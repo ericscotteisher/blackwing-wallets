@@ -48,10 +48,7 @@ export function WalletFeed({
   const filteredWallets = useMemo(() => {
     if (walletFilter === "All") return wallets;
     if (walletFilter === "Watching") {
-      return wallets.filter(
-        (wallet) =>
-          wallet.status === "Watching" || wallet.status === "Trading",
-      );
+      return wallets.filter((wallet) => wallet.status === "Watching");
     }
     if (walletFilter === "KOLs") {
       return wallets.filter((wallet) => wallet.status === "KOL");
@@ -67,13 +64,6 @@ export function WalletFeed({
 
   const sections = useMemo<Section[]>(() => {
     const result: Section[] = [];
-
-    const autoTrade = filteredWallets.filter(
-      (wallet) => wallet.status === "Trading",
-    );
-    if (autoTrade.length > 0) {
-      result.push({ id: "auto-trade", name: "Auto-trade", wallets: autoTrade });
-    }
 
     const watching = filteredWallets.filter(
       (wallet) => wallet.status === "Watching",
