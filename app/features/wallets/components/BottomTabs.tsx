@@ -9,8 +9,8 @@ type BottomTab = {
 };
 
 const bottomTabs: BottomTab[] = [
-  { id: "Wallets", icon: DaddyIcon, ariaLabel: "Wallets" },
-  { id: "Discover", icon: DiscoverIcon, ariaLabel: "Discover" },
+  { id: "Wallets", icon: DiscoverIcon, ariaLabel: "Wallets" },
+  { id: "Discover", icon: DaddyIcon, ariaLabel: "Discover" },
   { id: "Sugar", icon: SugarIcon, ariaLabel: "Sugar" },
 ];
 
@@ -50,7 +50,7 @@ function DaddyIcon({ active }: { active: boolean }) {
       viewBox="0 0 39 35"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={active ? "opacity-100" : "opacity-60"}
+      className={active ? "opacity-100" : "opacity-40"}
     >
       <path
         d="M29 11.25C29 12.9069 27.6569 14.25 26 14.25C24.3431 14.25 23 12.9069 23 11.25"
@@ -107,7 +107,7 @@ function DiscoverIcon({ active }: { active: boolean }) {
       viewBox="0 0 32 32"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={active ? "opacity-100" : "opacity-60"}
+      className={active ? "opacity-100" : "opacity-40"}
     >
       <path
         d="M4.94531 25H27.1675V21.6667H21.612V13.8889H27.1675V9.44444H4.94531V25Z"
@@ -137,7 +137,7 @@ function SugarIcon({ active }: { active: boolean }) {
       viewBox="0 0 32 32"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={active ? "opacity-100" : "opacity-60"}
+      className={active ? "opacity-100" : "opacity-40"}
     >
       <path d="M26 24H6" stroke="white" strokeWidth="2" />
       <rect x="21" y="12" width="3" height="3" fill="white" />
