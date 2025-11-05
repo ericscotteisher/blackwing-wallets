@@ -76,7 +76,7 @@ const actionToneClasses: Record<WalletSwipeAction["tone"], string> = {
 };
 
 const actionRevealOffsetPx = 40;
-const actionRevealWindowPx = 40;
+const actionRevealWindowPx = 80;
 const actionMinScale = 0.2;
 
 const badgePalette = [
