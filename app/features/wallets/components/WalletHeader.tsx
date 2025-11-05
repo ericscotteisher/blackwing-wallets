@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import type { WalletView } from "../constants";
 import { baseTextClass } from "../constants";
 import type { BottomTabId } from "./BottomTabs";
@@ -10,14 +12,43 @@ type WalletHeaderProps = {
   onBack: () => void;
 };
 
+const tabIcons: Record<BottomTabId, { src: string; alt: string }> = {
+  Wallets: {
+    src: "/top-icons/wallet-top-icon.png",
+    alt: "Wallets icon",
+  },
+  Discover: {
+    src: "/top-icons/daddy-top-icon.png",
+    alt: "Discover icon",
+  },
+  Sugar: {
+    src: "/top-icons/sugar-top-icon.png",
+    alt: "Sugar icon",
+  },
+};
+
+const navTitleClass = "text-[24px] font-semibold tracking-[0.02em] text-white";
+
 export function WalletHeader({ activeTab, selectedWallet, onBack }: WalletHeaderProps) {
+  const renderTabHeading = (tab: BottomTabId) => {
+    const icon = tabIcons[tab];
+    return (
+      <div className="flex flex-1 items-center gap-3">
+        <Image
+          src={icon.src}
+          alt={icon.alt}
+          width={32}
+          height={32}
+          priority={tab === activeTab}
+        />
+        <span className={navTitleClass}>{tab}</span>
+      </div>
+    );
+  };
+
   const renderContent = () => {
     if (activeTab !== "Wallets") {
-      return (
-        <div className="flex flex-1 justify-center">
-          <span className={`${baseTextClass} text-white`}>{activeTab}</span>
-        </div>
-      );
+      return renderTabHeading(activeTab);
     }
 
     if (selectedWallet) {
@@ -38,16 +69,7 @@ export function WalletHeader({ activeTab, selectedWallet, onBack }: WalletHeader
       );
     }
 
-    return (
-      <div className="flex flex-1 items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-violet-600 text-white">
-          <WalletGlyph />
-        </div>
-        <span className="text-[24px] font-semibold tracking-[0.02em] text-white">
-          Wallets
-        </span>
-      </div>
-    );
+    return renderTabHeading("Wallets");
   };
 
   return (
@@ -80,15 +102,6 @@ function ChevronLeftIcon() {
       strokeLinejoin="round"
     >
       <path d="M15 19l-7-7 7-7" />
-    </svg>
-  );
-}
-
-function WalletGlyph() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
-      <path d="M4 7.5A3.5 3.5 0 0 1 7.5 4h9A3.5 3.5 0 0 1 20 7.5v9a3.5 3.5 0 0 1-3.5 3.5h-9A3.5 3.5 0 0 1 4 16.5z" />
-      <path d="M17 11h-4a2 2 0 1 0 0 4h4z" className="text-violet-200" />
     </svg>
   );
 }
