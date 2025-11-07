@@ -138,7 +138,7 @@ export function WalletFeed({
                 key={tab}
                 type="button"
                 onClick={() => onWalletFilterChange(tab)}
-                className={`h-9 rounded-[10px] border px-4 font-semibold tracking-[0.02em] transition ${
+                className={`h-9 rounded-[8px] border px-4 font-semibold tracking-[0.02em] transition ${
                   isActive
                     ? "border-transparent bg-white text-black"
                     : "border-[#181818] bg-transparent text-white hover:bg-[#181818]"
@@ -151,7 +151,7 @@ export function WalletFeed({
         </div>
       </div>
 
-      <div className="mt-10">
+      <div className="mt-8">
         {sections.length === 0 ? (
           <div className="flex h-48 items-center justify-center rounded-2xl border border-dashed border-white/10 text-[#A1A1A1]">
             No wallets in this view yet.
@@ -167,7 +167,7 @@ export function WalletFeed({
                   <button
                     type="button"
                     onClick={() => handleSectionToggle(section.id)}
-                    className="flex items-center gap-3"
+                    className="flex items-center gap-1"
                     aria-expanded={isExpanded}
                   >
                     <span className="text-[14px] font-medium tracking-[0.02em] text-[#848484]">

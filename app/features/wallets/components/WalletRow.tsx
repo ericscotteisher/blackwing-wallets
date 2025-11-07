@@ -57,7 +57,7 @@ export function WalletRow({
     sectionId === "discover" && (wallet.isAutoTrade || wallet.isWatching);
   const showWatchingAutoIcon = sectionId === "watching" && wallet.isAutoTrade;
   const indicatorIcon = wallet.isAutoTrade
-    ? { src: "/wallet-icons/daddy-watching.png", alt: "Auto trade active" }
+    ? { src: "/wallet-icons/daddy-watching-v7.png", alt: "Auto trade active" }
     : { src: "/icons/watching-active.png", alt: "Watching active" };
   const tradeEntries = useMemo(() => {
     const entries: TradeListEntry[] = [];
@@ -266,7 +266,7 @@ export function WalletRow({
             className="flex flex-1 items-center justify-between rounded-2xl py-4 text-left transition focus-visible:outline-none"
             aria-label={`Open ${wallet.name}`}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               {showDiscoverStatus || showWatchingAutoIcon ? (
                 <Image
                   src={indicatorIcon.src}

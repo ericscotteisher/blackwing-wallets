@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
+const hostGrotesk = Space_Grotesk({
   weight: ["400", "500", "600", "700"],
-  variable: "--font-inter",
+  variable: "--font-host",
   subsets: ["latin"],
 });
 
@@ -20,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} antialiased`}>
+      <body className={`${hostGrotesk.variable} antialiased`}>
         {children}
       </body>
     </html>
