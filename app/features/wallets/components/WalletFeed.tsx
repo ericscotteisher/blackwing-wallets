@@ -11,6 +11,7 @@ import {
   type WalletFilter,
   type Timeframe,
   type WalletView,
+  type WatchingSort,
 } from "../constants";
 import { AnimatedList } from "./AnimatedList";
 import { SectionActions } from "./SectionActions";
@@ -21,11 +22,13 @@ type WalletFeedProps = {
   walletFilter: WalletFilter;
   expandedWallets: Record<string, boolean>;
   timeframe: Timeframe;
+  watchingSort: WatchingSort;
   onToggleWallet: (walletId: string) => void;
   onWalletSelect: (wallet: WalletView) => void;
   onWalletFilterChange: (filter: WalletFilter) => void;
   discoverSort: DiscoverSort;
   onDiscoverEllipsis: () => void;
+  onWatchingEllipsis: () => void;
   onWatchingPlus: () => void;
 };
 
@@ -34,11 +37,13 @@ export function WalletFeed({
   walletFilter,
   expandedWallets,
   timeframe,
+  watchingSort,
   onToggleWallet,
   onWalletSelect,
   onWalletFilterChange,
   discoverSort,
   onDiscoverEllipsis,
+  onWatchingEllipsis,
   onWatchingPlus,
 }: WalletFeedProps) {
   const [sectionExpansion, setSectionExpansion] = useState<Record<string, boolean>>(
@@ -48,7 +53,7 @@ export function WalletFeed({
   const filteredWallets = useMemo(() => {
     if (walletFilter === "All") return wallets;
     if (walletFilter === "Watching") {
-      return wallets.filter((wallet) => wallet.status === "Watching");
+      return wallets.filter((wallet) => wallet.isWatching || wallet.isAutoTrade);
     }
     if (walletFilter === "KOLs") {
       return wallets.filter((wallet) => wallet.status === "KOL");
@@ -66,59 +71,51 @@ export function WalletFeed({
     const result: Section[] = [];
 
     const watching = filteredWallets.filter(
-      (wallet) => wallet.status === "Watching",
+      (wallet) => wallet.isWatching || wallet.isAutoTrade,
     );
     if (watching.length > 0) {
-      result.push({ id: "watching", name: "Watching", wallets: watching });
+      const sortedWatching = [...watching].sort((a, b) => {
+        if (watchingSort === "recent") {
+          return new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime();
+        }
+        if (watchingSort === "auto") {
+          const autoDelta = Number(b.isAutoTrade) - Number(a.isAutoTrade);
+          if (autoDelta !== 0) return autoDelta;
+          return b.pnl[timeframe].money - a.pnl[timeframe].money;
+        }
+        return b.pnl[timeframe].money - a.pnl[timeframe].money;
+      });
+      result.push({
+        id: "watching",
+        kind: "watching",
+        name: "Watching",
+        wallets: sortedWatching,
+      });
     }
 
-    const kols = filteredWallets.filter((wallet) => wallet.status === "KOL");
-    if (kols.length > 0) {
-      const sorted = [...kols].sort((a, b) => {
+    discoverStatuses.forEach((status) => {
+      const bucket = filteredWallets.filter((wallet) => wallet.status === status);
+      if (bucket.length === 0) return;
+
+      const sorted = [...bucket].sort((a, b) => {
         if (discoverSort === "recent") {
           return (
             new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime()
           );
         }
-        return (
-          b.pnl[timeframe].money - a.pnl[timeframe].money
-        );
+        return b.pnl[timeframe].money - a.pnl[timeframe].money;
       });
-      result.push({ id: "kols", name: "KOLs", wallets: sorted });
-    }
 
-    const whales = filteredWallets.filter((wallet) => wallet.status === "Whale");
-    if (whales.length > 0) {
-      const sorted = [...whales].sort((a, b) => {
-        if (discoverSort === "recent") {
-          return (
-            new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime()
-          );
-        }
-        return (
-          b.pnl[timeframe].money - a.pnl[timeframe].money
-        );
+      result.push({
+        id: `discover-${status.toLowerCase()}`,
+        kind: "discover",
+        name: `${status} Discover`,
+        wallets: sorted,
       });
-      result.push({ id: "whales", name: "Whales", wallets: sorted });
-    }
-
-    const alpha = filteredWallets.filter((wallet) => wallet.status === "Alpha");
-    if (alpha.length > 0) {
-      const sorted = [...alpha].sort((a, b) => {
-        if (discoverSort === "recent") {
-          return (
-            new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime()
-          );
-        }
-        return (
-          b.pnl[timeframe].money - a.pnl[timeframe].money
-        );
-      });
-      result.push({ id: "alpha", name: "Alpha", wallets: sorted });
-    }
+    });
 
     return result;
-  }, [filteredWallets, discoverSort, timeframe]);
+  }, [filteredWallets, discoverSort, timeframe, watchingSort]);
 
   const handleSectionToggle = (sectionId: string) => {
     setSectionExpansion((prev) => {
@@ -179,9 +176,15 @@ export function WalletFeed({
                     <SectionCaret open={isExpanded} />
                   </button>
                   <SectionActions
-                    sectionId={section.id}
-                    onEllipsis={["kols", "whales", "alpha"].includes(section.id) ? onDiscoverEllipsis : undefined}
-                    onPlus={section.id === "watching" ? onWatchingPlus : undefined}
+                    sectionId={section.kind}
+                    onEllipsis={
+                      section.kind === "discover"
+                        ? onDiscoverEllipsis
+                        : section.kind === "watching"
+                          ? onWatchingEllipsis
+                          : undefined
+                    }
+                    onPlus={section.kind === "watching" ? onWatchingPlus : undefined}
                   />
                 </div>
 
@@ -191,7 +194,7 @@ export function WalletFeed({
                   className="space-y-0"
                   renderItem={(wallet) => (
                     <WalletRow
-                      sectionId={section.id}
+                      sectionId={section.kind}
                       wallet={wallet}
                       expanded={Boolean(expandedWallets[wallet.id])}
                       timeframe={timeframe}

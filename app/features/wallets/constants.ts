@@ -10,15 +10,17 @@ export const walletFilterTabs = ["All", "Watching", "KOLs", "Whales", "Alpha"] a
 export type WalletFilter = (typeof walletFilterTabs)[number];
 
 export type DiscoverSort = "recent" | "top";
+export type WatchingSort = "top" | "recent" | "auto";
 
 export type WalletView = WalletRecord & {
   trades: TokenRecord[];
 };
 
-export type WalletSectionId = "watching" | "kols" | "whales" | "alpha";
+export type WalletSectionId = "auto-trade" | "watching" | "discover";
 
 export type Section = {
-  id: WalletSectionId;
+  id: string;
+  kind: WalletSectionId;
   name: string;
   wallets: WalletView[];
 };
@@ -44,21 +46,15 @@ export type { Timeframe };
 export const discoverStatuses: WalletStatus[] = ["KOL", "Whale", "Alpha"];
 
 export const walletSwipeActions: Record<WalletSectionId, WalletSwipeAction[]> = {
+  "auto-trade": [
+    { id: "disable-auto", label: "- auto", tone: "negative" },
+    { id: "adjust-settings", label: "adjust settings", tone: "default" },
+  ],
   watching: [
     { id: "enable-auto", label: "+ auto", tone: "positive" },
     { id: "unfollow", label: "unfollow", tone: "default" },
   ],
-  kols: [
-    { id: "follow", label: "follow", tone: "positive" },
-    { id: "enable-auto", label: "+ auto", tone: "positive" },
-    { id: "block", label: "block", tone: "negative" },
-  ],
-  whales: [
-    { id: "follow", label: "follow", tone: "positive" },
-    { id: "enable-auto", label: "+ auto", tone: "positive" },
-    { id: "block", label: "block", tone: "negative" },
-  ],
-  alpha: [
+  discover: [
     { id: "follow", label: "follow", tone: "positive" },
     { id: "enable-auto", label: "+ auto", tone: "positive" },
     { id: "block", label: "block", tone: "negative" },

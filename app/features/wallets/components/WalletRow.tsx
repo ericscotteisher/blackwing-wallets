@@ -53,6 +53,12 @@ export function WalletRow({
   const summary = getTradeSummary(wallet.trades, timeframe);
   const walletMoney = getMoneyParts(wallet.pnl[timeframe].money);
   const walletPercent = getPercentDisplay(wallet.pnl[timeframe].percent);
+  const showDiscoverStatus =
+    sectionId === "discover" && (wallet.isAutoTrade || wallet.isWatching);
+  const showWatchingAutoIcon = sectionId === "watching" && wallet.isAutoTrade;
+  const indicatorIcon = wallet.isAutoTrade
+    ? { src: "/wallet-icons/daddy-watching.png", alt: "Auto trade active" }
+    : { src: "/icons/watching-active.png", alt: "Watching active" };
   const tradeEntries = useMemo(() => {
     const entries: TradeListEntry[] = [];
     if (summary) {
@@ -261,30 +267,20 @@ export function WalletRow({
             aria-label={`Open ${wallet.name}`}
           >
             <div className="flex items-center gap-3">
-              {sectionId === "watching" && ["Cruelghoul", "Minko", "Babydoll"].includes(wallet.name) ? (
-                <div className="flex items-center gap-1">
-                  <div className="h-5 w-5">
-                    <Image
-                      src="/wallet-icons/daddy-watching.png"
-                      alt="wallet"
-                      width={20}
-                      height={20}
-                      className="h-full w-full object-contain"
-                    />
-                  </div>
-                  <span
-                    className={`flex h-5 w-5 items-center justify-center rounded-[5px] text-[13px] font-semibold text-white ${badgeClasses}`}
-                  >
-                    <span className="translate-y-[-1px]">@</span>
-                  </span>
-                </div>
-              ) : (
-                <span
-                  className={`flex h-5 w-5 items-center justify-center rounded-[5px] text-[13px] font-semibold text-white ${badgeClasses}`}
-                >
-                  <span className="translate-y-[-1px]">@</span>
-                </span>
-              )}
+              {showDiscoverStatus || showWatchingAutoIcon ? (
+                <Image
+                  src={indicatorIcon.src}
+                  alt={indicatorIcon.alt}
+                  width={20}
+                  height={20}
+                  className="h-5 w-5"
+                />
+              ) : null}
+              <span
+                className={`flex h-5 w-5 items-center justify-center rounded-[5px] text-[13px] font-semibold text-white ${badgeClasses}`}
+              >
+                <span className="translate-y-[-1px]">@</span>
+              </span>
               <span className={`${baseTextClass} text-white`}>
                 {wallet.name}
               </span>
