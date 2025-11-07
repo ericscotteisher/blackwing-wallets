@@ -106,10 +106,13 @@ export function WalletFeed({
         return b.pnl[timeframe].money - a.pnl[timeframe].money;
       });
 
+      const sectionName =
+        status === "Whale" ? "Whales" : status === "Alpha" ? "Alpha wallets" : "KOLs";
+
       result.push({
         id: `discover-${status.toLowerCase()}`,
         kind: "discover",
-        name: `${status} Discover`,
+        name: sectionName,
         wallets: sorted,
       });
     });

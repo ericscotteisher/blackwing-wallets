@@ -57,8 +57,20 @@ export function WalletRow({
     sectionId === "discover" && (wallet.isAutoTrade || wallet.isWatching);
   const showWatchingAutoIcon = sectionId === "watching" && wallet.isAutoTrade;
   const indicatorIcon = wallet.isAutoTrade
-    ? { src: "/wallet-icons/daddy-watching-v7.png", alt: "Auto trade active" }
-    : { src: "/icons/watching-active.png", alt: "Watching active" };
+    ? {
+        src: "/wallet-icons/daddy-watching.png",
+        alt: "Auto trade active",
+        width: 22,
+        height: 20,
+        className: "h-[20px] w-[22px]",
+      }
+    : {
+        src: "/icons/watching-active.png",
+        alt: "Watching active",
+        width: 20,
+        height: 20,
+        className: "h-5 w-5",
+      };
   const tradeEntries = useMemo(() => {
     const entries: TradeListEntry[] = [];
     if (summary) {
@@ -271,9 +283,9 @@ export function WalletRow({
                 <Image
                   src={indicatorIcon.src}
                   alt={indicatorIcon.alt}
-                  width={20}
-                  height={20}
-                  className="h-5 w-5"
+                  width={indicatorIcon.width}
+                  height={indicatorIcon.height}
+                  className={indicatorIcon.className}
                 />
               ) : null}
               <span
@@ -285,7 +297,7 @@ export function WalletRow({
                 {wallet.name}
               </span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               <span className={`${baseTextClass} text-white`}>
                 <span className="text-[#A1A1A1]">{walletMoney.sign}</span>
                 {walletMoney.amount}
@@ -308,11 +320,16 @@ export function WalletRow({
             renderItem={(entry) => {
               if (entry.kind === "summary") {
                 return (
-                  <div
-                    className={`mb-2 flex items-center justify-between px-0 ${baseTextClass} text-[#464B55]`}
-                  >
-                    <span>{entry.summary.tradesLabel}</span>
-                    <span>{entry.summary.winRateLabel}</span>
+                  <div className="mb-2 flex items-center gap-3 rounded-full bg-[#1E2025] px-4 py-2 text-[14px] font-medium text-[#848484]">
+                    <span className="flex-1 text-left">
+                      {entry.summary.tradesLabel}
+                    </span>
+                    <span className="flex-1 text-center">
+                      {entry.summary.winRateLabel}
+                    </span>
+                    <span className="flex-1 text-right">
+                      See stats
+                    </span>
                   </div>
                 );
               }
