@@ -58,7 +58,7 @@ export function WalletRow({
   const showWatchingAutoIcon = sectionId === "watching" && wallet.isAutoTrade;
   const indicatorIcon = wallet.isAutoTrade
     ? {
-        src: "/wallet-icons/daddy-watching.png",
+        src: "/wallet-icons/daddy-watching-v8.png",
         alt: "Auto trade active",
         width: 22,
         height: 20,

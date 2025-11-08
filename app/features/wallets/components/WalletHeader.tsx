@@ -11,6 +11,9 @@ type WalletHeaderProps = {
   selectedWallet: WalletView | null;
   selectedTimeframe: Timeframe;
   onTimeframeChange: (timeframe: Timeframe) => void;
+  isWatchingSelectedWallet?: boolean;
+  onToggleSelectedWalletWatch?: () => void;
+  onShareSelectedWallet?: () => void;
   onBack: () => void;
 };
 
@@ -36,6 +39,9 @@ export function WalletHeader({
   selectedWallet,
   selectedTimeframe,
   onTimeframeChange,
+  isWatchingSelectedWallet,
+  onToggleSelectedWalletWatch,
+  onShareSelectedWallet,
   onBack,
 }: WalletHeaderProps) {
   const renderTabHeading = (tab: BottomTabId) => {
@@ -82,6 +88,39 @@ export function WalletHeader({
   const renderRightContent = () => {
     if (activeTab !== "Wallets") {
       return <div className="h-8 w-8" />;
+    }
+
+    if (selectedWallet) {
+      return (
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            aria-label="Share wallet"
+            onClick={onShareSelectedWallet}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-white transition hover:bg-white/10"
+          >
+            <ShareIcon />
+          </button>
+          <button
+            type="button"
+            aria-label={isWatchingSelectedWallet ? "Unfollow wallet" : "Follow wallet"}
+            onClick={onToggleSelectedWalletWatch}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-white transition hover:bg-white/10"
+          >
+            <Image
+              src={
+                isWatchingSelectedWallet
+                  ? "/icons/watching-active.png"
+                  : "/icons/watching-off.png"
+              }
+              alt={isWatchingSelectedWallet ? "Watching" : "Not watching"}
+              width={20}
+              height={20}
+              className="h-5 w-5"
+            />
+          </button>
+        </div>
+      );
     }
 
     return (
@@ -143,5 +182,23 @@ function TimeframeSelector({ current, onSelect }: TimeframeSelectorProps) {
         );
       })}
     </div>
+  );
+}
+
+function ShareIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="h-5 w-5 text-white"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
+      <path d="M16 6l-4-4-4 4" />
+      <path d="M12 2v14" />
+    </svg>
   );
 }
