@@ -3,7 +3,7 @@
 import Image from "next/image";
 
 import type { Timeframe, WalletView } from "../constants";
-import { baseTextClass, timeframes } from "../constants";
+import { timeframes } from "../constants";
 import type { BottomTabId } from "./BottomTabs";
 
 type WalletHeaderProps = {
@@ -71,14 +71,16 @@ export function WalletHeader({
           <button
             type="button"
             onClick={onBack}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-white transition hover:bg-white/10"
+            className="flex h-10 w-10 items-center justify-center text-white transition hover:text-white/80"
             aria-label="Back to wallets"
           >
             <ChevronLeftIcon />
           </button>
-          <span className={`${baseTextClass} text-white`}>
-            {selectedWallet.name}
-          </span>
+          <p className="text-[16px] font-medium tracking-[0.02em] text-[#848484]">
+            <span>@</span>{" "}
+            <span className="text-white">{selectedWallet.name}</span>
+            <span>’s wallet</span>
+          </p>
         </div>
       );
     }
@@ -92,20 +94,12 @@ export function WalletHeader({
 
     if (selectedWallet) {
       return (
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            aria-label="Share wallet"
-            onClick={onShareSelectedWallet}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-white transition hover:bg-white/10"
-          >
-            <ShareIcon />
-          </button>
+        <div className="flex items-center gap-1.5">
           <button
             type="button"
             aria-label={isWatchingSelectedWallet ? "Unfollow wallet" : "Follow wallet"}
             onClick={onToggleSelectedWalletWatch}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-white transition hover:bg-white/10"
+            className="flex h-10 w-10 items-center justify-center text-white transition hover:text-white/80"
           >
             <Image
               src={
@@ -114,10 +108,18 @@ export function WalletHeader({
                   : "/icons/watching-off.png"
               }
               alt={isWatchingSelectedWallet ? "Watching" : "Not watching"}
-              width={20}
-              height={20}
-              className="h-5 w-5"
+              width={24}
+              height={24}
+              className="h-6 w-6"
             />
+          </button>
+          <button
+            type="button"
+            aria-label="Share wallet"
+            onClick={onShareSelectedWallet}
+            className="flex h-10 w-10 items-center justify-center text-white transition hover:text-white/80"
+          >
+            <ShareIcon className="h-6 w-6" />
           </button>
         </div>
       );
@@ -132,7 +134,7 @@ export function WalletHeader({
   };
 
   return (
-    <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-white/10 bg-[#0C0C0C] px-6">
+    <header className="sticky top-0 z-20 flex h-14 items-center justify-between bg-[#0C0C0C] px-6">
       {renderContent()}
       {renderRightContent()}
     </header>
@@ -185,11 +187,11 @@ function TimeframeSelector({ current, onSelect }: TimeframeSelectorProps) {
   );
 }
 
-function ShareIcon() {
+function ShareIcon({ className = "h-5 w-5" }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      className="h-5 w-5 text-white"
+      className={`${className} text-white`}
       fill="none"
       stroke="currentColor"
       strokeWidth={1.5}

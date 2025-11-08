@@ -165,7 +165,6 @@ export default function Home() {
                 wallet={selectedWallet}
                 timeframe={selectedTimeframe}
                 onTimeframeChange={setSelectedTimeframe}
-                onWatchingToggle={(value) => requestWatchingToggle(selectedWallet, value)}
                 onCopyTradeToggle={(value) => handleCopyTradeToggle(selectedWallet.id, value)}
               />
             ) : (
