@@ -178,7 +178,7 @@ export function WalletDetail({
         />
         <button
           type="button"
-          className="flex h-10 items-center justify-center rounded-[10px] border border-[#1E2025] text-center text-[14px] font-medium tracking-[0.02em] text-[#848484] transition hover:border-white/20"
+          className="flex h-full items-center justify-center rounded-[10px] border border-[#1E2025] text-center text-[14px] font-medium tracking-[0.02em] text-[#848484] transition hover:border-white/20"
         >
           See stats
         </button>
@@ -195,7 +195,7 @@ export function WalletDetail({
         {sections.map((section) => {
           const isOpen = sectionExpansion[section.id] ?? true;
           return (
-            <div key={section.id} className="border-t border-[#1E2025] py-5">
+            <div key={section.id} className="border-t border-[#1E2025] py-8">
               <button
                 type="button"
                 onClick={() => handleSectionToggle(section.id)}
@@ -304,7 +304,7 @@ function CopyTradeCard({
     <button
       type="button"
       onClick={() => onToggle(!active)}
-      className="flex w-full items-center justify-between rounded-[10px] bg-[#181818] px-4 py-4 text-left transition hover:bg-[#1f1f1f] min-h-[64px]"
+      className="flex w-full items-center justify-between rounded-[10px] bg-[#181818] px-4 py-4 text-left transition hover:bg-[#1f1f1f] min-h-[64px] mb-9"
     >
       <div>
         <p className="text-[16px] font-semibold tracking-[0.02em] text-white">
@@ -331,7 +331,7 @@ function PositionRow({ position }: { position: Position }) {
     position.change > 0 ? "text-emerald-400" : position.change < 0 ? "text-rose-400" : "text-white";
 
   return (
-    <div className="flex items-center justify-between py-3">
+    <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-[#1F1F21] text-[15px] font-semibold text-white">
           {position.name.charAt(0).toUpperCase()}
