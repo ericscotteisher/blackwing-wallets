@@ -205,7 +205,7 @@ export function WalletDetail({
                 onClick={() => handleSectionToggle(section.id)}
                 className="flex w-full items-center gap-2 text-left"
               >
-                <span className="text-[16px] font-semibold tracking-[0.02em] text-white">
+                <span className="text-[14px] font-medium tracking-[0.02em] text-[#848484]">
                   {section.name}
                 </span>
                 <CaretIcon open={isOpen} />
@@ -241,8 +241,8 @@ function DetailTimeframeSelector({
             key={tf}
             type="button"
             onClick={() => onSelect(tf)}
-            className={`rounded-[5px] px-2 py-1 uppercase tracking-[0.08em] transition ${
-              isActive ? "bg-white text-black" : "text-white/60 hover:text-white"
+            className={`px-2 py-[3px] text-[14px] font-medium tracking-[0.02em] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 ${
+              isActive ? "rounded-[8px] bg-[#32353D] text-white" : "rounded-[8px] bg-transparent text-[#AFAFAF] hover:text-white"
             }`}
           >
             {tf}
@@ -255,7 +255,7 @@ function DetailTimeframeSelector({
 
 function DetailChart() {
   return (
-    <div className="w-full">
+    <div className="w-full border-b border-[#1E2025]">
       <Image
         src="/Chart-v2.png"
         alt="Wallet performance chart"
@@ -308,7 +308,7 @@ function CopyTradeCard({
     <button
       type="button"
       onClick={() => onToggle(!active)}
-      className={`flex w-full items-center justify-center rounded-[10px] px-5 text-left transition min-h-[52px] mb-9 ${active ? "bg-[#181818] hover:bg-[#1f1f1f]" : "bg-[#4B31F2] hover:bg-[#452DDB]"}`}
+      className={`flex w-full items-center justify-center rounded-[10px] px-5 text-left transition min-h-[44px] mb-9 ${active ? "bg-[#181818] hover:bg-[#1f1f1f]" : "bg-[#4B31F2] hover:bg-[#452DDB]"}`}
     >
       <div>
         <p className="text-[16px] font-semibold tracking-[0.02em] text-white">
@@ -359,14 +359,14 @@ function CaretIcon({ open }: { open: boolean }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      className={`h-5 w-5 text-white transition-transform ${open ? "rotate-0" : "-rotate-90"}`}
+      className={`h-5 w-5 text-[#464B55] transition-transform ${open ? "rotate-0" : "-rotate-90"}`}
       fill="none"
       stroke="currentColor"
       strokeWidth={2}
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M8 10l4 4 4-4" />
+      <path d="M6 9l6 6 6-6" />
     </svg>
   );
 }

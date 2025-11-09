@@ -32,7 +32,7 @@ const tabIcons: Record<BottomTabId, { src: string; alt: string }> = {
   },
 };
 
-const navTitleClass = "text-[24px] font-semibold tracking-[0.02em] text-white";
+const navTitleClass = "text-[22px] font-semibold tracking-[0.02em] text-white";
 
 export function WalletHeader({
   activeTab,
