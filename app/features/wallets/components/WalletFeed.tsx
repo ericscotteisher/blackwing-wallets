@@ -131,9 +131,9 @@ export function WalletFeed({
   };
 
   return (
-    <div className={`${baseTextClass} pb-8 text-white`}>
+    <div className={`${baseTextClass} pb-8 px-5 text-white`}>
       <div className="-mx-6 mt-6 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none]">
-        <div className="flex w-max gap-1.5 px-6 [&::-webkit-scrollbar]:hidden">
+        <div className="flex w-max gap-1.5 px-5 [&::-webkit-scrollbar]:hidden">
           {walletFilterTabs.map((tab) => {
             const isActive = tab === walletFilter;
             return (
@@ -141,7 +141,7 @@ export function WalletFeed({
                 key={tab}
                 type="button"
                 onClick={() => onWalletFilterChange(tab)}
-                className={`h-9 rounded-[8px] border px-4 font-semibold tracking-[0.02em] transition ${
+                className={`h-9 rounded-[8px] border px-5 font-semibold tracking-[0.02em] transition ${
                   isActive
                     ? "border-transparent bg-white text-black"
                     : "border-[#181818] bg-transparent text-white hover:bg-[#181818]"

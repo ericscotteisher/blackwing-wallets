@@ -47,7 +47,7 @@ export function WatchingSortSheet({
                 key={option.value}
                 type="button"
                 onClick={() => onSelect(option.value)}
-                className={`flex w-full items-center justify-between px-6 py-4 text-left text-[16px] font-medium tracking-[0.02em] text-white ${
+                className={`flex w-full items-center justify-between px-5 py-4 text-left text-[16px] font-medium tracking-[0.02em] text-white ${
                   isLast ? "" : "border-b border-white/10"
                 }`}
               >
@@ -60,7 +60,7 @@ export function WatchingSortSheet({
         <button
           type="button"
           onClick={onClose}
-          className="block w-full rounded-2xl border border-white/10 bg-[#141417] px-6 py-4 text-center text-[16px] font-medium tracking-[0.02em] text-white"
+          className="block w-full rounded-2xl border border-white/10 bg-[#141417] px-5 py-4 text-center text-[16px] font-medium tracking-[0.02em] text-white"
         >
           Close
         </button>

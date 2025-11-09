@@ -140,21 +140,23 @@ export function WalletDetail({
   return (
     <div className="space-y-6 pb-10">
       <div>
-        <p className="text-[32px] font-semibold tracking-[0.02em] text-white">
+        <p className="text-[32px] font-semibold tracking-[0.02em] text-white px-5">
           <span className="text-white">
             {balanceParts.sign && <span>{balanceParts.sign}</span>}
             <span>${balanceParts.int}</span>
           </span>
           <span className="text-[#848484]">.{balanceParts.frac}</span>
         </p>
-        <div className="mt-2 flex items-center justify-between gap-3">
-          <div className="flex flex-1 flex-wrap items-baseline gap-3 text-[16px] font-medium tracking-[0.02em]">
+        <div className="mt-0 flex items-center justify-between gap-3 px-5">
+          <div className="flex flex-1 flex-wrap items-baseline gap-1 text-[15px] font-medium tracking-[0.02em]">
             <span className="text-[#4B31F2]">
               <span>{timeframeMoneyParts.sign}</span>
               {timeframeMoneyParts.amount}
             </span>
             <span className="text-[#4B31F2]">
+              (
               {formatPercent(timeframePnl.percent)}
+              )
             </span>
             <span className="text-[14px] text-[#848484]">
               {timeframeLabels[timeframe]}
@@ -166,7 +168,7 @@ export function WalletDetail({
 
       <DetailChart />
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-3 px-5">
         <StatBlock label="Trades" value={tradesCount.toString()} />
         <StatBlock
           label="Win rate"
@@ -184,18 +186,20 @@ export function WalletDetail({
         </button>
       </div>
 
-      <div className="flex items-center gap-3">
-        <SocialButton label="X" iconSrc="/icons/social-x.png" />
+      <div className="flex items-center gap-3 px-5">
+        <SocialButton label="Twitter" iconSrc="/icons/social-x.png" />
         <SocialButton label="Telegram" iconSrc="/icons/social-telegram.png" />
       </div>
 
-      <CopyTradeCard active={wallet.isAutoTrade} onToggle={onCopyTradeToggle} />
+      <div className="px-5">
+        <CopyTradeCard active={wallet.isAutoTrade} onToggle={onCopyTradeToggle} />
+      </div>
 
       <div className="space-y-0">
         {sections.map((section) => {
           const isOpen = sectionExpansion[section.id] ?? true;
           return (
-            <div key={section.id} className="border-t border-[#1E2025] py-8">
+            <div key={section.id} className="border-t border-[#1E2025] py-8 px-5">
               <button
                 type="button"
                 onClick={() => handleSectionToggle(section.id)}
@@ -229,7 +233,7 @@ function DetailTimeframeSelector({
   onSelect: (timeframe: Timeframe) => void;
 }) {
   return (
-    <div className="flex rounded-[10px] bg-white/5 p-1 text-[13px]">
+    <div className="flex text-[13px]">
       {timeframes.map((tf) => {
         const isActive = current === tf;
         return (
@@ -237,7 +241,7 @@ function DetailTimeframeSelector({
             key={tf}
             type="button"
             onClick={() => onSelect(tf)}
-            className={`rounded-[8px] px-3 py-1 uppercase tracking-[0.08em] transition ${
+            className={`rounded-[5px] px-2 py-1 uppercase tracking-[0.08em] transition ${
               isActive ? "bg-white text-black" : "text-white/60 hover:text-white"
             }`}
           >
@@ -266,7 +270,7 @@ function DetailChart() {
 
 function StatBlock({ label, value }: { label: string; value: string }) {
   return (
-    <div className="space-y-1">
+    <div className="space-y-0 text-center">
       <p className="text-[14px] font-medium tracking-[0.02em] text-[#848484]">
         {label}
       </p>
@@ -304,20 +308,20 @@ function CopyTradeCard({
     <button
       type="button"
       onClick={() => onToggle(!active)}
-      className="flex w-full items-center justify-between rounded-[10px] bg-[#181818] px-4 py-4 text-left transition hover:bg-[#1f1f1f] min-h-[64px] mb-9"
+      className={`flex w-full items-center justify-center rounded-[10px] px-5 text-left transition min-h-[52px] mb-9 ${active ? "bg-[#181818] hover:bg-[#1f1f1f]" : "bg-[#4B31F2] hover:bg-[#452DDB]"}`}
     >
       <div>
         <p className="text-[16px] font-semibold tracking-[0.02em] text-white">
-          Copy trade
+          <span className="text-white">{active ? "Copy trade enabled" : "Enable copy trade"}</span>
         </p>
-        {active ? (
+        {/* {active ? (
           <p className="text-[14px] text-[#848484]">+15% (trailing) or -25%</p>
-        ) : null}
+        ) : null} */}
       </div>
-      <div className="flex items-center gap-1 text-[16px] font-semibold text-white">
+      {/* <div className="flex items-center gap-1 text-[16px] font-semibold text-white">
         <span className="text-white">{active ? "Active" : "Inactive"}</span>
         <ChevronRightIcon />
-      </div>
+      </div> */}
     </button>
   );
 }

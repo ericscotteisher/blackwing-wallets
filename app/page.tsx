@@ -158,7 +158,7 @@ export default function Home() {
           onBack={handleBackToWallets}
         />
 
-        <main className={`flex-1 overflow-y-auto px-6 pb-8 ${baseTextClass} text-white`}>
+        <main className={`flex-1 overflow-y-auto px-0 pb-8 ${baseTextClass} text-white`}>
           {showWalletTab ? (
             selectedWallet ? (
               <WalletDetail
@@ -247,7 +247,7 @@ function ConfirmSheet({
   onConfirm: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 px-4 pb-8">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 px-5 pb-8">
       <div className="w-full max-w-[500px] rounded-3xl border border-white/10 bg-[#111111] p-6">
         <p className="text-[18px] font-semibold tracking-[0.02em] text-white">
           Turn off copy trades?
@@ -259,14 +259,14 @@ function ConfirmSheet({
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 rounded-2xl border border-white/20 px-4 py-3 text-center text-[15px] font-semibold text-white"
+            className="flex-1 rounded-2xl border border-white/20 px-5 py-3 text-center text-[15px] font-semibold text-white"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className="flex-1 rounded-2xl bg-[#4B31F2] px-4 py-3 text-center text-[15px] font-semibold text-white"
+            className="flex-1 rounded-2xl bg-[#4B31F2] px-5 py-3 text-center text-[15px] font-semibold text-white"
           >
             Unfollow
           </button>

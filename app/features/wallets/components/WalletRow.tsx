@@ -320,7 +320,7 @@ export function WalletRow({
             renderItem={(entry) => {
               if (entry.kind === "summary") {
                 return (
-                  <div className="mb-2 flex items-center gap-3 rounded-full bg-[#1E2025] px-4 py-2 text-[14px] font-medium text-[#848484]">
+                  <div className="mb-2 flex items-center gap-3 rounded-full bg-[#1E2025] px-5 py-2 text-[14px] font-medium text-[#848484]">
                     <span className="flex-1 text-left">
                       {entry.summary.tradesLabel}
                     </span>

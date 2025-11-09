@@ -71,7 +71,7 @@ export function WalletHeader({
           <button
             type="button"
             onClick={onBack}
-            className="flex h-10 w-10 items-center justify-center text-white transition hover:text-white/80"
+            className="flex h-10 items-center justify-center text-white transition hover:text-white/80"
             aria-label="Back to wallets"
           >
             <ChevronLeftIcon />
@@ -134,7 +134,7 @@ export function WalletHeader({
   };
 
   return (
-    <header className="sticky top-0 z-20 flex h-14 items-center justify-between bg-[#0C0C0C] px-6">
+    <header className="sticky top-0 z-20 flex h-14 items-center justify-between bg-[#0C0C0C] px-5">
       {renderContent()}
       {renderRightContent()}
     </header>

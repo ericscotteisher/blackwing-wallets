@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Zalando_Sans_SemiExpanded } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const hostGrotesk = Zalando_Sans_SemiExpanded({
+const hostGrotesk = Inter({
   weight: ["400", "500", "600", "700"],
   variable: "--font-host",
   subsets: ["latin"],
