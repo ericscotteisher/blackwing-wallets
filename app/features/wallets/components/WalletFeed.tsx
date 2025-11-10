@@ -166,11 +166,11 @@ export function WalletFeed({
             const spacingClass = isLast ? "" : "mb-6";
             return (
               <section key={section.id} className={spacingClass}>
-                <div className="mb-2 flex items-center justify-between">
+                <div className="mb-2 flex items-center justify-between gap-3">
                   <button
                     type="button"
                     onClick={() => handleSectionToggle(section.id)}
-                    className="flex items-center gap-1"
+                    className="flex flex-1 items-center gap-1 text-left"
                     aria-expanded={isExpanded}
                   >
                     <span className="text-[14px] font-medium tracking-[0.02em] text-[#848484]">

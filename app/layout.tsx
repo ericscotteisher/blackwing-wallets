@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Nunito_Sans } from "next/font/google";
 import "./globals.css";
 
-const hostGrotesk = Inter({
+const hostGrotesk = Nunito_Sans({
   weight: ["400", "500", "600", "700"],
   variable: "--font-host",
   subsets: ["latin"],

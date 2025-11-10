@@ -371,22 +371,6 @@ function CaretIcon({ open }: { open: boolean }) {
   );
 }
 
-function ChevronRightIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className="h-6 w-6 text-[#848484]"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M10 6l6 6-6 6" />
-    </svg>
-  );
-}
-
 const balanceNumberFormatter = new Intl.NumberFormat("en-US", {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
