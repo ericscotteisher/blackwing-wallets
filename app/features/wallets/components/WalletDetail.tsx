@@ -351,7 +351,7 @@ export function WalletDetail({
             onClick={() => setIsTradeSettingsOpen(false)}
             className="mt-6 h-12 w-full rounded-[10px] bg-[#222222] text-[16px] font-semibold text-white"
           >
-            Close trade settings
+            Close
           </button>
         </BottomSheet>
       )}
@@ -524,13 +524,13 @@ function InlineToggle({ value, onChange }: { value: boolean; onChange: (val: boo
     <button
       type="button"
       onClick={() => onChange(!value)}
-      className={`relative h-6 w-11 rounded-full transition ${
-        value ? "bg-white/90" : "bg-white/20"
+      className={`relative h-6 w-[52px] rounded-full transition ${
+        value ? "bg-[#414141]" : "bg-[#4B4BFB]"
       }`}
     >
       <span
-        className={`absolute top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-[#0C0C0C] transition ${
-          value ? "translate-x-[22px]" : "translate-x-1"
+        className={`absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-white shadow transition ${
+          value ? "translate-x-[-22px]" : "translate-x-[6px]"
         }`}
       />
     </button>
