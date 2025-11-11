@@ -5,12 +5,14 @@ import { useMemo, useState } from "react";
 import { walletRecords } from "./data";
 import {
   baseTextClass,
+  timeframes,
   type DiscoverSort,
   type WalletFilter,
   type Timeframe,
   type WalletView,
   type WatchingSort,
 } from "./features/wallets/constants";
+import type { WalletRecord } from "./data";
 import { getTradesForWallet } from "./features/wallets/utils";
 import { AddWalletModal } from "./features/wallets/components/AddWalletModal";
 import { BottomTabs, type BottomTabId } from "./features/wallets/components/BottomTabs";
@@ -147,6 +149,34 @@ export default function Home() {
     setStatsTarget({ wallet, timeframe });
   };
 
+  const handleAddWallet = (address: string) => {
+    const trimmed = address.trim();
+    if (!trimmed) return;
+    const name = trimmed.slice(0, 5);
+    const id = `custom-${Date.now()}`;
+    const basePnl = timeframes.reduce(
+      (acc, tf) => ({
+        ...acc,
+        [tf]: { money: 0, percent: 0 },
+      }),
+      {} as WalletView["pnl"],
+    );
+    const record: WalletRecord = {
+      id,
+      name,
+      pnl: basePnl,
+      isWatching: false,
+      isAutoTrade: false,
+      status: "Watching",
+      addedAt: new Date().toISOString(),
+    };
+    const trades = getTradesForWallet(record, walletViews.length);
+    const newWallet: WalletView = { ...record, trades };
+    setWalletViews((prev) => [newWallet, ...prev]);
+    setSelectedWalletId(id);
+    setIsAddWalletOpen(false);
+  };
+
   const showWalletTab = activeBottomTab === "Wallets";
 
   return (
@@ -234,6 +264,7 @@ export default function Home() {
         <AddWalletModal
           open={isAddWalletOpen}
           onClose={() => setIsAddWalletOpen(false)}
+          onSubmit={handleAddWallet}
         />
 
         {pendingUnfollowWallet && (
