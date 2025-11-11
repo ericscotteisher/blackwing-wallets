@@ -63,6 +63,6 @@ export function getTradeSummary(
 
   return {
     tradesLabel: `${trades.length} trades`,
-    winRateLabel: `${winRate}% win rate`,
+    winRateLabel: `${winRate}% wins`,
   };
 }

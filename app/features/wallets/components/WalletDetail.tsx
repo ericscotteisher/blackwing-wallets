@@ -174,7 +174,7 @@ export function WalletDetail({
           label="Win rate"
           value={
             summary
-              ? summary.winRateLabel.replace(" win rate", "")
+              ? summary.winRateLabel.replace(" wins", "")
               : "80%"
           }
         />
