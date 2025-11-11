@@ -14,6 +14,8 @@ export type WalletRecord = {
   pnl: Record<Timeframe, TimeframePNL>;
   isWatching: boolean;
   isAutoTrade: boolean;
+  alias?: string;
+  address: string;
   status: WalletStatus;
   addedAt: string;
 };
@@ -194,7 +196,7 @@ const specialWallets = ["Cruelghoul", "Minko", "Babydoll", "Kingpin"];
 const allWalletNames = [...specialWallets, ...fiveDigitWallets];
 
 const tradingIndexes = new Set([0, 1, 2]);
-const watchingIndexes = new Set([3, 4, 5, 6, 7]);
+const watchingIndexes = new Set([3, 4]);
 
 const startDate = new Date("2025-11-01T00:00:00Z").getTime();
 const endDate = new Date("2025-11-05T23:59:59Z").getTime();
@@ -241,6 +243,7 @@ export const walletRecords: WalletRecord[] = allWalletNames.map(
     return {
       id: `${name}-${index}`,
       name,
+      address: name,
       pnl,
       isWatching,
       isAutoTrade,

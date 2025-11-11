@@ -13,13 +13,14 @@ import {
   type WatchingSort,
 } from "./features/wallets/constants";
 import type { WalletRecord } from "./data";
-import { getTradesForWallet } from "./features/wallets/utils";
+import { getTradesForWallet, getWalletDisplayName } from "./features/wallets/utils";
 import { AddWalletModal } from "./features/wallets/components/AddWalletModal";
 import { BottomTabs, type BottomTabId } from "./features/wallets/components/BottomTabs";
 import { DiscoverSortSheet } from "./features/wallets/components/DiscoverSortSheet";
 import { WalletDetail } from "./features/wallets/components/WalletDetail";
 import { WalletFeed } from "./features/wallets/components/WalletFeed";
 import { WalletHeader } from "./features/wallets/components/WalletHeader";
+import { WalletRenameSheet } from "./features/wallets/components/WalletRenameSheet";
 import { WalletStatsSheet } from "./features/wallets/components/WalletStatsSheet";
 import { WatchingSortSheet } from "./features/wallets/components/WatchingSortSheet";
 
@@ -52,6 +53,7 @@ export default function Home() {
     wallet: WalletView;
     timeframe: Timeframe;
   } | null>(null);
+  const [renameTarget, setRenameTarget] = useState<WalletView | null>(null);
 
   const selectedWallet = useMemo(
     () => walletViews.find((wallet) => wallet.id === selectedWalletId) ?? null,
@@ -102,15 +104,22 @@ export default function Home() {
       return;
     }
     applyWatchingState(wallet.id, nextValue);
+    if (nextValue && !wallet.isWatching) {
+      setRenameTarget(wallet);
+    }
   };
 
   const handleCopyTradeToggle = (walletId: string, nextValue: boolean) => {
+    const previous = walletViews.find((wallet) => wallet.id === walletId);
     updateWalletViews(walletId, (wallet) => {
       if (nextValue) {
         return { ...wallet, isAutoTrade: true, isWatching: true };
       }
       return { ...wallet, isAutoTrade: false };
     });
+    if (nextValue && previous && !previous.isWatching) {
+      setRenameTarget(previous);
+    }
   };
 
   const pendingUnfollowWallet = pendingUnfollowWalletId
@@ -145,10 +154,6 @@ export default function Home() {
     }
   };
 
-  const handleStatsOpen = (wallet: WalletView, timeframe: Timeframe) => {
-    setStatsTarget({ wallet, timeframe });
-  };
-
   const handleAddWallet = (address: string) => {
     const trimmed = address.trim();
     if (!trimmed) return;
@@ -164,6 +169,7 @@ export default function Home() {
     const record: WalletRecord = {
       id,
       name,
+      address: trimmed,
       pnl: basePnl,
       isWatching: false,
       isAutoTrade: false,
@@ -175,6 +181,29 @@ export default function Home() {
     setWalletViews((prev) => [newWallet, ...prev]);
     setSelectedWalletId(id);
     setIsAddWalletOpen(false);
+  };
+
+  const handleRenameSave = (walletId: string, alias: string | null) => {
+    setWalletViews((prev) =>
+      prev.map((wallet) =>
+        wallet.id === walletId
+          ? {
+              ...wallet,
+              alias: alias && alias.trim().length > 0 ? alias.trim() : undefined,
+            }
+          : wallet,
+      ),
+    );
+    setRenameTarget(null);
+  };
+
+  const handleStartRename = (wallet: WalletView | null) => {
+    if (!wallet) return;
+    setRenameTarget(wallet);
+  };
+
+  const handleStatsOpen = (wallet: WalletView, timeframe: Timeframe) => {
+    setStatsTarget({ wallet, timeframe });
   };
 
   const showWalletTab = activeBottomTab === "Wallets";
@@ -194,6 +223,7 @@ export default function Home() {
               : undefined
           }
           onShareSelectedWallet={() => handleShareWallet(selectedWallet)}
+          onRenameSelectedWallet={() => handleStartRename(selectedWallet)}
           onBack={handleBackToWallets}
         />
 
@@ -279,9 +309,21 @@ export default function Home() {
           <WalletStatsSheet
             key={`${statsTarget.wallet.id}-${statsTarget.timeframe}`}
             open
-            walletName={statsTarget.wallet.name}
+            walletName={getWalletDisplayName(statsTarget.wallet)}
             timeframe={statsTarget.timeframe}
             onClose={() => setStatsTarget(null)}
+          />
+        )}
+
+        {renameTarget && (
+          <WalletRenameSheet
+            key={renameTarget.id}
+            open
+            walletName={getWalletDisplayName(renameTarget)}
+            addressLabel={`@${(renameTarget.address ?? renameTarget.name).slice(0, 6)}`}
+            currentAlias={renameTarget.alias}
+            onClose={() => setRenameTarget(null)}
+            onSave={(alias) => handleRenameSave(renameTarget.id, alias)}
           />
         )}
       </div>

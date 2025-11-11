@@ -1,0 +1,39 @@
+++ (function inserted at end)
+function ConfirmSheet({
+  walletName,
+  onCancel,
+  onConfirm,
+}: {
+  walletName: string;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 px-5 pb-8">
+      <div className="w-full max-w-[500px] rounded-3xl border border-white/10 bg-[#111111] p-6">
+        <p className="text-[18px] font-semibold tracking-[0.02em] text-white">
+          Turn off copy trades?
+        </p>
+        <p className="mt-2 text-[15px] text-[#A1A1A1]">
+          Unfollowing {walletName} will disable copy trading for this wallet. Are you sure?
+        </p>
+        <div className="mt-6 flex gap-3">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flex-1 rounded-2xl border border-white/20 px-5 py-3 text-center text-[15px] font-semibold text-white"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="flex-1 rounded-2xl bg-[#4B31F2] px-5 py-3 text-center text-[15px] font-semibold text-white"
+          >
+            Unfollow
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

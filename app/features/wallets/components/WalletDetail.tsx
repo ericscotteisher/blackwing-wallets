@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useMemo, useState, type ReactNode } from "react";
 
 import { timeframes, type Timeframe, type WalletView } from "../constants";
-import { getMoneyParts, getTradeSummary } from "../utils";
+import { getMoneyParts, getTradeSummary, getWalletDisplayName } from "../utils";
 
 type WalletDetailProps = {
   wallet: WalletView;
@@ -121,11 +121,13 @@ export function WalletDetail({
   const balanceParts = getBalanceParts(yearlyBalance);
   const timeframePnl = wallet.pnl[timeframe];
   const timeframeMoneyParts = getMoneyParts(timeframePnl.money);
+  const displayName = getWalletDisplayName(wallet);
+  const addressPreview = (wallet.address ?? wallet.name).slice(0, 6);
 
   const sections = [
     {
       id: "positions",
-      name: `${wallet.name}'s positions`,
+      name: `${displayName}'s positions`,
       positions: openPositions,
     },
     {
@@ -281,7 +283,7 @@ export function WalletDetail({
       {isTradeSettingsOpen && (
         <BottomSheet onClose={() => setIsTradeSettingsOpen(false)}>
           <div className="flex items-center justify-between">
-            <span className="text-[16px] font-medium text-white">@{wallet.name}</span>
+            <span className="text-[16px] font-medium text-white">@{addressPreview}</span>
           </div>
           <h2 className="mt-4 text-[24px] font-medium tracking-[0.02em] text-white">
             Trade settings
@@ -571,7 +573,7 @@ function BottomSheet({
   onClose: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/60 px-4 pb-8">
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 px-4">
       <button type="button" className="absolute inset-0" onClick={onClose} aria-label="Close" />
       <div className="relative w-full max-w-[520px] rounded-3xl border border-white/10 bg-[#111111] p-6">
         {children}

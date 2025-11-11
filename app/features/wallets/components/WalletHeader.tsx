@@ -4,6 +4,7 @@ import Image from "next/image";
 
 import type { Timeframe, WalletView } from "../constants";
 import { timeframes } from "../constants";
+import { getWalletDisplayName } from "../utils";
 import type { BottomTabId } from "./BottomTabs";
 
 type WalletHeaderProps = {
@@ -14,6 +15,7 @@ type WalletHeaderProps = {
   isWatchingSelectedWallet?: boolean;
   onToggleSelectedWalletWatch?: () => void;
   onShareSelectedWallet?: () => void;
+  onRenameSelectedWallet?: () => void;
   onBack: () => void;
 };
 
@@ -42,8 +44,10 @@ export function WalletHeader({
   isWatchingSelectedWallet,
   onToggleSelectedWalletWatch,
   onShareSelectedWallet,
+  onRenameSelectedWallet,
   onBack,
 }: WalletHeaderProps) {
+  const selectedWalletLabel = selectedWallet ? getWalletDisplayName(selectedWallet) : "";
   const renderTabHeading = (tab: BottomTabId) => {
     const icon = tabIcons[tab];
     return (
@@ -78,7 +82,7 @@ export function WalletHeader({
           </button>
           <p className="text-[16px] font-medium tracking-[0.02em] text-[#848484]">
             <span>@</span>{" "}
-            <span className="text-white">{selectedWallet.name}</span>
+            <span className="text-white">{selectedWalletLabel}</span>
             <span>’s wallet</span>
           </p>
         </div>
@@ -95,6 +99,14 @@ export function WalletHeader({
     if (selectedWallet) {
       return (
         <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            aria-label="Rename wallet"
+            onClick={onRenameSelectedWallet}
+            className="flex h-10 w-10 items-center justify-center text-white transition hover:text-white/80"
+          >
+            <PencilIcon />
+          </button>
           <button
             type="button"
             aria-label={isWatchingSelectedWallet ? "Unfollow wallet" : "Follow wallet"}
@@ -201,6 +213,23 @@ function ShareIcon({ className = "h-5 w-5" }: { className?: string }) {
       <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
       <path d="M16 6l-4-4-4 4" />
       <path d="M12 2v14" />
+    </svg>
+  );
+}
+
+function PencilIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="h-5 w-5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z" />
     </svg>
   );
 }

@@ -27,6 +27,7 @@ import {
   getPercentDisplay,
   getTokenBadgeClasses,
   getTradeSummary,
+  getWalletDisplayName,
 } from "../utils";
 import { AnimatedList } from "./AnimatedList";
 import { WalletRowActionButton } from "./WalletRowActionButton";
@@ -55,6 +56,7 @@ export function WalletRow({
   const summary = getTradeSummary(wallet.trades, timeframe);
   const walletMoney = getMoneyParts(wallet.pnl[timeframe].money);
   const walletPercent = getPercentDisplay(wallet.pnl[timeframe].percent);
+  const walletLabel = getWalletDisplayName(wallet);
   const showDiscoverStatus =
     sectionId === "discover" && (wallet.isAutoTrade || wallet.isWatching);
   const showWatchingAutoIcon = sectionId === "watching" && wallet.isAutoTrade;
@@ -278,7 +280,7 @@ export function WalletRow({
             type="button"
             onClick={handleSelectClick}
             className="flex flex-1 items-center justify-between rounded-2xl py-4 text-left transition focus-visible:outline-none"
-            aria-label={`Open ${wallet.name}`}
+            aria-label={`Open ${walletLabel}`}
           >
             <div className="flex items-center gap-2">
               {showDiscoverStatus || showWatchingAutoIcon ? (
@@ -296,7 +298,7 @@ export function WalletRow({
                 <span className="translate-y-[-1px]">@</span>
               </span>
               <span className={`${baseTextClass} text-white`}>
-                {wallet.name}
+                {walletLabel}
               </span>
             </div>
             <div className="flex items-center gap-1">

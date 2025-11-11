@@ -8,6 +8,7 @@ import {
   badgePalette,
   tokenColorPalette,
   type TradeSummaryInfo,
+  type WalletView,
 } from "./constants";
 
 const moneyFormatter = new Intl.NumberFormat("en-US", {
@@ -65,4 +66,11 @@ export function getTradeSummary(
     tradesLabel: `${trades.length} trades`,
     winRateLabel: `${winRate}% wins`,
   };
+}
+
+export function getWalletDisplayName(wallet: WalletView) {
+  if (wallet.alias && wallet.alias.trim().length > 0) {
+    return wallet.alias.trim();
+  }
+  return wallet.name;
 }
