@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 
 import { timeframes, type Timeframe, type WalletView } from "../constants";
 import { getMoneyParts, getTradeSummary } from "../utils";
@@ -106,6 +106,9 @@ export function WalletDetail({
     positions: true,
     closed: true,
   });
+  const [isCopyConfirmOpen, setIsCopyConfirmOpen] = useState(false);
+  const [isTradeSettingsOpen, setIsTradeSettingsOpen] = useState(false);
+  const [sellWithWallet, setSellWithWallet] = useState(true);
 
   const summary = useMemo(
     () => getTradeSummary(wallet.trades, timeframe),
@@ -192,7 +195,26 @@ export function WalletDetail({
       </div>
 
       <div className="px-5">
-        <CopyTradeCard active={wallet.isAutoTrade} onToggle={onCopyTradeToggle} />
+        <CopyTradeCard
+          active={wallet.isAutoTrade}
+          onToggle={(next) => {
+            if (next) {
+              onCopyTradeToggle(true);
+              setIsCopyConfirmOpen(true);
+            } else {
+              onCopyTradeToggle(false);
+            }
+          }}
+        />
+        {!wallet.isAutoTrade && (
+          <button
+            type="button"
+            onClick={() => setIsTradeSettingsOpen(true)}
+            className="mt-3 flex h-[44px] w-full items-center justify-center rounded-[10px] border border-[#222222] px-4 text-left text-[16px] font-medium text-white transition hover:bg-[#1f1f1f]"
+          >
+            Trade settings
+          </button>
+        )}
       </div>
 
       <div className="space-y-0">
@@ -221,6 +243,118 @@ export function WalletDetail({
           );
         })}
       </div>
+
+      {isCopyConfirmOpen && (
+        <BottomSheet onClose={() => setIsCopyConfirmOpen(false)}>
+          <h2 className="text-[20px] font-medium tracking-[0.02em] text-white">
+            You’re copying this wallet
+          </h2>
+          <p className="mt-3 text-[16px] font-medium text-[#848484]">
+            Any time this wallet buys or sells a token your account will follow.
+          </p>
+          <div className="mt-6 space-y-3">
+            <button
+              type="button"
+              onClick={() => {
+                setIsCopyConfirmOpen(false);
+                setIsTradeSettingsOpen(true);
+              }}
+              className="h-12 w-full rounded-[10px] border border-white/20 text-[16px] font-semibold text-white"
+            >
+              Adjust settings
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsCopyConfirmOpen(false)}
+              className="h-12 w-full rounded-[10px] bg-[#222222] text-[16px] font-semibold text-white"
+            >
+              Close
+            </button>
+          </div>
+        </BottomSheet>
+      )}
+
+      {isTradeSettingsOpen && (
+        <BottomSheet onClose={() => setIsTradeSettingsOpen(false)}>
+          <div className="flex items-center justify-between">
+            <span className="text-[16px] font-medium text-white">@{wallet.name}</span>
+            <button
+              type="button"
+              onClick={() => setIsTradeSettingsOpen(false)}
+              className="text-[14px] text-[#848484]"
+            >
+              Close
+            </button>
+          </div>
+          <h2 className="mt-4 text-[24px] font-medium tracking-[0.02em] text-white">
+            Trade settings
+          </h2>
+          <div className="mt-6 space-y-4">
+            <SettingsRow
+              label="Enable auto trade"
+              control={
+                <InlineToggle
+                  value={wallet.isAutoTrade}
+                  onChange={(value) => onCopyTradeToggle(value)}
+                />
+              }
+            />
+            <SettingsRow
+              label="Buy size"
+              control={
+                <span className="flex items-center gap-2 text-[15px] text-white">
+                  up to 1 SOL
+                  <ChevronRightIcon />
+                </span>
+              }
+            />
+            <SettingsRow
+              label="Take profit"
+              control={
+                <span className="flex items-center gap-2 text-[15px] text-white">
+                  +15% (trailing)
+                  <ChevronRightIcon />
+                </span>
+              }
+            />
+            <SettingsRow
+              label="Stop loss"
+              control={
+                <span className="flex items-center gap-2 text-[15px] text-white">
+                  -25%
+                  <ChevronRightIcon />
+                </span>
+              }
+            />
+            <SettingsRow
+              label="Sell with wallet"
+              control={
+                <InlineToggle
+                  value={sellWithWallet}
+                  onChange={(value) => setSellWithWallet(value)}
+                />
+              }
+            />
+          </div>
+          <div className="mt-6 space-y-2 text-[13px] text-[#848484]">
+            <p>
+              • By enabling auto-trading, you allow Daddy to trade for you. Trades carry risk and
+              may not be profitable.
+            </p>
+            <p>
+              • Sell with wallet mirrors the wallet’s sell %, even if it differs from your own sell
+              settings.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsTradeSettingsOpen(false)}
+            className="mt-6 h-12 w-full rounded-[10px] bg-[#222222] text-[16px] font-semibold text-white"
+          >
+            Close trade settings
+          </button>
+        </BottomSheet>
+      )}
     </div>
   );
 }
@@ -308,7 +442,7 @@ function CopyTradeCard({
     <button
       type="button"
       onClick={() => onToggle(!active)}
-      className={`flex w-full items-center justify-center rounded-[10px] px-5 text-left transition min-h-[44px] mb-9 ${active ? "bg-[#181818] hover:bg-[#1f1f1f]" : "bg-[#4B31F2] hover:bg-[#452DDB]"}`}
+      className={`flex w-full items-center justify-center rounded-[10px] px-5 text-left transition min-h-[44px] mb-2 ${active ? "bg-[#181818] hover:bg-[#1f1f1f]" : "bg-[#4B31F2] hover:bg-[#452DDB]"}`}
     >
       <div>
         <p className="text-[16px] font-semibold tracking-[0.02em] text-white">
@@ -366,6 +500,72 @@ function CaretIcon({ open }: { open: boolean }) {
     >
       <path d="M6 9l6 6 6-6" />
     </svg>
+  );
+}
+
+function ChevronRightIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="h-4 w-4 text-[#848484]"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M10 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+function InlineToggle({ value, onChange }: { value: boolean; onChange: (val: boolean) => void }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(!value)}
+      className={`relative h-6 w-11 rounded-full transition ${
+        value ? "bg-white/90" : "bg-white/20"
+      }`}
+    >
+      <span
+        className={`absolute top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-[#0C0C0C] transition ${
+          value ? "translate-x-[22px]" : "translate-x-1"
+        }`}
+      />
+    </button>
+  );
+}
+
+function SettingsRow({
+  label,
+  control,
+}: {
+  label: string;
+  control: ReactNode;
+}) {
+  return (
+    <div className="flex items-center justify-between border-b border-white/10 pb-4 last:border-b-0">
+      <span className="text-[15px] text-white">{label}</span>
+      <div className="flex items-center gap-2">{control}</div>
+    </div>
+  );
+}
+
+function BottomSheet({
+  children,
+  onClose,
+}: {
+  children: ReactNode;
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/60 px-4 pb-8">
+      <button type="button" className="absolute inset-0" onClick={onClose} aria-label="Close" />
+      <div className="relative w-full max-w-[520px] rounded-3xl border border-white/10 bg-[#111111] p-6">
+        {children}
+      </div>
+    </div>
   );
 }
 
