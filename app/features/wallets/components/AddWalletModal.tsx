@@ -27,7 +27,7 @@ export function AddWalletModal({ open, onClose, onSubmit }: AddWalletModalProps)
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 px-4 pb-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
       <button
         type="button"
         onClick={handleClose}
@@ -38,9 +38,6 @@ export function AddWalletModal({ open, onClose, onSubmit }: AddWalletModalProps)
         onSubmit={handleSubmit}
         className="relative z-10 w-full max-w-[420px] rounded-[28px] border border-white/10 bg-[#0E0E0F] p-6 shadow-lg shadow-black/50"
       >
-        <div className="mb-5 flex justify-center">
-          <span className="h-1.5 w-12 rounded-full bg-white/20" />
-        </div>
         <h2 className="text-[20px] font-medium tracking-[0.02em] text-white">
           Enter wallet address
         </h2>
