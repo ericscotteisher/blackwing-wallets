@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 
-const ranges = ["1d", "7d", "30d"] as const;
-type Range = (typeof ranges)[number];
+import { timeframes, type Timeframe } from "../constants";
+
+const ranges = timeframes;
 
 type WalletStatsSheetProps = {
   open: boolean;
   walletName: string;
-  timeframe: Range;
+  timeframe: Timeframe;
   onClose: () => void;
 };
 
@@ -23,7 +24,7 @@ const baseStats = {
 };
 
 export function WalletStatsSheet({ open, walletName, timeframe, onClose }: WalletStatsSheetProps) {
-  const [range, setRange] = useState<Range>(timeframe);
+  const [range, setRange] = useState<Timeframe>(timeframe);
 
   if (!open) return null;
 
