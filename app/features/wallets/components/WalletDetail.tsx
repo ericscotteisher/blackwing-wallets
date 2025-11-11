@@ -205,6 +205,7 @@ export function WalletDetail({
               onCopyTradeToggle(false);
             }
           }}
+          onActivePress={() => setIsTradeSettingsOpen(true)}
         />
         {!wallet.isAutoTrade && (
           <button
@@ -295,7 +296,14 @@ export function WalletDetail({
               control={
                 <InlineToggle
                   value={wallet.isAutoTrade}
-                  onChange={(value) => onCopyTradeToggle(value)}
+                  onChange={(value) => {
+                    if (value) {
+                      onCopyTradeToggle(true);
+                      setIsCopyConfirmOpen(true);
+                    } else {
+                      onCopyTradeToggle(false);
+                    }
+                  }}
                 />
               }
             />
@@ -434,28 +442,31 @@ function SocialButton({ label, iconSrc }: { label: string; iconSrc: string }) {
 function CopyTradeCard({
   active,
   onToggle,
+  onActivePress,
 }: {
   active: boolean;
   onToggle: (nextValue: boolean) => void;
+  onActivePress: () => void;
 }) {
   return (
     <button
       type="button"
-      onClick={() => onToggle(!active)}
-      className={`flex w-full items-center justify-center rounded-[10px] px-5 text-left transition min-h-[44px] mb-2 ${active ? "bg-[#181818] hover:bg-[#1f1f1f]" : "bg-[#4B31F2] hover:bg-[#452DDB]"}`}
+      onClick={() => {
+        if (active) {
+          onActivePress();
+        } else {
+          onToggle(true);
+        }
+      }}
+      className={`mb-2 flex min-h-[44px] w-full items-center justify-center rounded-[10px] px-5 text-left transition ${
+        active ? "bg-[#181818] hover:bg-[#1f1f1f]" : "bg-[#4B31F2] hover:bg-[#452DDB]"
+      }`}
     >
       <div>
         <p className="text-[16px] font-semibold tracking-[0.02em] text-white">
-          <span className="text-white">{active ? "Copy trade enabled" : "Enable copy trade"}</span>
+          {active ? "Copy trade enabled" : "Enable copy trade"}
         </p>
-        {/* {active ? (
-          <p className="text-[14px] text-[#848484]">+15% (trailing) or -25%</p>
-        ) : null} */}
       </div>
-      {/* <div className="flex items-center gap-1 text-[16px] font-semibold text-white">
-        <span className="text-white">{active ? "Active" : "Inactive"}</span>
-        <ChevronRightIcon />
-      </div> */}
     </button>
   );
 }
@@ -525,12 +536,12 @@ function InlineToggle({ value, onChange }: { value: boolean; onChange: (val: boo
       type="button"
       onClick={() => onChange(!value)}
       className={`relative h-6 w-[52px] rounded-full transition ${
-        value ? "bg-[#414141]" : "bg-[#4B4BFB]"
+        value ? "bg-[#4B4BFB]" : "bg-[#414141]"
       }`}
     >
       <span
         className={`absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-white shadow transition ${
-          value ? "translate-x-[-22px]" : "translate-x-[6px]"
+          value ? "translate-x-[6px]" : "translate-x-[-22px]"
         }`}
       />
     </button>
