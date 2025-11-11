@@ -57,7 +57,7 @@ const closedPositions: Position[] = [
   {
     id: "snot-coins-1",
     name: "Snot coins",
-    meta: "Jul 30 · 12:45pm · 350 @ $620.5K",
+    meta: "Jul 30 · 12:45pm",
     change: 0,
     amountLabel: "+$145.67",
     rightSecondary: "350 @ $620.5K",
@@ -65,7 +65,7 @@ const closedPositions: Position[] = [
   {
     id: "snot-coins-2",
     name: "Snot coins",
-    meta: "Jul 30 · 12:45pm · 480 @ $800.2K",
+    meta: "Jul 30 · 12:45pm",
     change: 0,
     amountLabel: "+$98.32",
     rightSecondary: "480 @ $800.2K",
@@ -73,7 +73,7 @@ const closedPositions: Position[] = [
   {
     id: "stinky-monkey",
     name: "Stinky monkey",
-    meta: "Jul 30 · 12:45pm · 390 @ $710.8K",
+    meta: "Jul 30 · 12:45pm",
     change: 0,
     amountLabel: "+$76.45",
     rightSecondary: "390 @ $710.8K",
@@ -81,7 +81,7 @@ const closedPositions: Position[] = [
   {
     id: "money-printer",
     name: "Money printer",
-    meta: "Jul 30 · 12:45pm · 450 @ $900.1K",
+    meta: "Jul 30 · 12:45pm",
     change: 0,
     amountLabel: "+$132.89",
     rightSecondary: "450 @ $900.1K",
@@ -89,7 +89,7 @@ const closedPositions: Position[] = [
   {
     id: "washy",
     name: "Washy washington",
-    meta: "Jul 30 · 12:45pm · 500 @ $850.4K",
+    meta: "Jul 30 · 12:45pm",
     change: 0,
     amountLabel: "+$110.54",
     rightSecondary: "500 @ $850.4K",
@@ -331,8 +331,6 @@ function PositionRow({ position }: { position: Position }) {
     position.change === 0
       ? position.amountLabel
       : `${position.change > 0 ? "+" : ""}${position.change.toFixed(2)}%`;
-  const changeColor =
-    position.change > 0 ? "text-emerald-400" : position.change < 0 ? "text-rose-400" : "text-white";
 
   return (
     <div className="flex items-center justify-between">
@@ -346,10 +344,10 @@ function PositionRow({ position }: { position: Position }) {
         </div>
       </div>
       <div className="text-right">
-        <p className={`text-[15px] font-semibold ${changeColor}`}>{changeLabel}</p>
-        <p className="text-[15px] text-[#848484]">
+        <p className="text-[15px] font-semibold text-white">
           {position.rightSecondary ?? position.amountLabel}
         </p>
+        <p className="text-[15px] text-[#848484]">{changeLabel}</p>
       </div>
     </div>
   );
