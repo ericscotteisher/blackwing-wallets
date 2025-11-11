@@ -30,6 +30,7 @@ type WalletFeedProps = {
   onDiscoverEllipsis: () => void;
   onWatchingEllipsis: () => void;
   onWatchingPlus: () => void;
+  onSeeStats: (wallet: WalletView, timeframe: Timeframe) => void;
 };
 
 export function WalletFeed({
@@ -45,6 +46,7 @@ export function WalletFeed({
   onDiscoverEllipsis,
   onWatchingEllipsis,
   onWatchingPlus,
+  onSeeStats,
 }: WalletFeedProps) {
   const [sectionExpansion, setSectionExpansion] = useState<Record<string, boolean>>(
     {},
@@ -203,6 +205,7 @@ export function WalletFeed({
                       timeframe={timeframe}
                       onToggle={() => onToggleWallet(wallet.id)}
                       onSelect={() => onWalletSelect(wallet)}
+                      onSeeStats={onSeeStats}
                     />
                   )}
                   getKey={(wallet) => wallet.id}

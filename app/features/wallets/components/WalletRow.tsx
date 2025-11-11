@@ -38,6 +38,7 @@ type WalletRowProps = {
   timeframe: Timeframe;
   onToggle: () => void;
   onSelect: () => void;
+  onSeeStats: (wallet: WalletView, timeframe: Timeframe) => void;
 };
 
 export function WalletRow({
@@ -47,6 +48,7 @@ export function WalletRow({
   timeframe,
   onToggle,
   onSelect,
+  onSeeStats,
 }: WalletRowProps) {
   const actions = walletSwipeActions[sectionId] ?? [];
   const badgeClasses = getBadgeClasses(wallet.name);
@@ -320,17 +322,21 @@ export function WalletRow({
             renderItem={(entry) => {
               if (entry.kind === "summary") {
                 return (
-                  <div className="mb-2 flex items-center gap-3 rounded-full bg-[#1E2025] px-5 py-2 text-[14px] font-medium text-[#848484]">
+                  <button
+                    type="button"
+                    onClick={() => onSeeStats(wallet, timeframe)}
+                    className="mb-2 flex w-full items-center gap-3 rounded-full bg-[#1E2025] px-5 py-2 text-[14px] font-medium text-[#848484] transition hover:bg-[#24262d]"
+                  >
                     <span className="flex-1 text-left">
                       {entry.summary.tradesLabel}
                     </span>
                     <span className="flex-1 text-center">
                       {entry.summary.winRateLabel}
                     </span>
-                    <span className="flex-1 text-right">
+                    <span className="flex-1 text-right text-white">
                       See stats
                     </span>
-                  </div>
+                  </button>
                 );
               }
               const trade = entry.trade;

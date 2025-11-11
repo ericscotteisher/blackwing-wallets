@@ -18,6 +18,7 @@ import { DiscoverSortSheet } from "./features/wallets/components/DiscoverSortShe
 import { WalletDetail } from "./features/wallets/components/WalletDetail";
 import { WalletFeed } from "./features/wallets/components/WalletFeed";
 import { WalletHeader } from "./features/wallets/components/WalletHeader";
+import { WalletStatsSheet } from "./features/wallets/components/WalletStatsSheet";
 import { WatchingSortSheet } from "./features/wallets/components/WatchingSortSheet";
 
 export default function Home() {
@@ -45,6 +46,10 @@ export default function Home() {
   const [pendingUnfollowWalletId, setPendingUnfollowWalletId] = useState<string | null>(
     null,
   );
+  const [statsTarget, setStatsTarget] = useState<{
+    wallet: WalletView;
+    timeframe: Timeframe;
+  } | null>(null);
 
   const selectedWallet = useMemo(
     () => walletViews.find((wallet) => wallet.id === selectedWalletId) ?? null,
@@ -138,6 +143,10 @@ export default function Home() {
     }
   };
 
+  const handleStatsOpen = (wallet: WalletView, timeframe: Timeframe) => {
+    setStatsTarget({ wallet, timeframe });
+  };
+
   const showWalletTab = activeBottomTab === "Wallets";
 
   return (
@@ -166,6 +175,7 @@ export default function Home() {
                 timeframe={selectedTimeframe}
                 onTimeframeChange={setSelectedTimeframe}
                 onCopyTradeToggle={(value) => handleCopyTradeToggle(selectedWallet.id, value)}
+                onStatsOpen={handleStatsOpen}
               />
             ) : (
               <WalletFeed
@@ -181,6 +191,7 @@ export default function Home() {
                 onDiscoverEllipsis={() => setIsDiscoverSheetOpen(true)}
                 onWatchingEllipsis={() => setIsWatchingSheetOpen(true)}
                 onWatchingPlus={() => setIsAddWalletOpen(true)}
+                onSeeStats={handleStatsOpen}
               />
             )
           ) : (
@@ -230,6 +241,16 @@ export default function Home() {
             walletName={pendingUnfollowWallet.name}
             onCancel={() => setPendingUnfollowWalletId(null)}
             onConfirm={handleConfirmUnfollow}
+          />
+        )}
+
+        {statsTarget && (
+          <WalletStatsSheet
+            key={`${statsTarget.wallet.id}-${statsTarget.timeframe}`}
+            open
+            walletName={statsTarget.wallet.name}
+            timeframe={statsTarget.timeframe}
+            onClose={() => setStatsTarget(null)}
           />
         )}
       </div>

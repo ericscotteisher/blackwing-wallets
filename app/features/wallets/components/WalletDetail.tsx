@@ -11,6 +11,7 @@ type WalletDetailProps = {
   timeframe: Timeframe;
   onTimeframeChange: (timeframe: Timeframe) => void;
   onCopyTradeToggle: (nextValue: boolean) => void;
+  onStatsOpen: (wallet: WalletView, timeframe: Timeframe) => void;
 };
 
 const timeframeLabels: Record<Timeframe, string> = {
@@ -101,6 +102,7 @@ export function WalletDetail({
   timeframe,
   onTimeframeChange,
   onCopyTradeToggle,
+  onStatsOpen,
 }: WalletDetailProps) {
   const [sectionExpansion, setSectionExpansion] = useState<Record<string, boolean>>({
     positions: true,
@@ -183,6 +185,7 @@ export function WalletDetail({
         />
         <button
           type="button"
+          onClick={() => onStatsOpen(wallet, timeframe)}
           className="flex h-full items-center justify-center rounded-[10px] border border-[#1E2025] text-center text-[14px] font-medium tracking-[0.02em] text-[#848484] transition hover:border-white/20"
         >
           See stats
@@ -279,18 +282,12 @@ export function WalletDetail({
         <BottomSheet onClose={() => setIsTradeSettingsOpen(false)}>
           <div className="flex items-center justify-between">
             <span className="text-[16px] font-medium text-white">@{wallet.name}</span>
-            <button
-              type="button"
-              onClick={() => setIsTradeSettingsOpen(false)}
-              className="text-[14px] text-[#848484]"
-            >
-              Close
-            </button>
           </div>
           <h2 className="mt-4 text-[24px] font-medium tracking-[0.02em] text-white">
             Trade settings
           </h2>
-          <div className="mt-6 space-y-4">
+          {/* First section */}
+          <div className="mt-6 bg-[#181818] items-center justify-center px-4 rounded-xl">
             <SettingsRow
               label="Enable auto trade"
               control={
@@ -307,6 +304,9 @@ export function WalletDetail({
                 />
               }
             />
+            </div>
+            {/* Second section */}
+            <div className="mt-6 bg-[#181818] items-center justify-center px-4 rounded-xl">
             <SettingsRow
               label="Buy size"
               control={
@@ -556,7 +556,7 @@ function SettingsRow({
   control: ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between border-b border-white/10 pb-4 last:border-b-0">
+    <div className="flex items-center justify-between border-b py-4 border-white/10 last:border-b-0">
       <span className="text-[15px] text-white">{label}</span>
       <div className="flex items-center gap-2">{control}</div>
     </div>
